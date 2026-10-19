@@ -1,0 +1,41 @@
+# ---------- Dependencies ----------
+node_modules/
+*/node_modules/
+**/node_modules/
+
+# ---------- Environment / secrets ----------
+# Ignore real env files (contain API keys) but KEEP .env.example
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.development
+**/.env.production
+
+# ---------- Build output ----------
+dist/
+client/dist/
+build/
+
+# ---------- Logs ----------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---------- Cache ----------
+.cache/
+.vite/
+.temp/
+.tmp/
+
+# ---------- Editor / OS ----------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Misc ----------
+coverage/
+*.local

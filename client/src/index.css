@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0b1f3a;
+  --sky: #38bdf8;
+  --orange: #ff7a3d;
+  --gold: #f5b83d;
+  --cloud: #f8fafc;
+  --teal: #14b8a6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #f8fafc;
+  color: #0b1f3a;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Outfit", "Poppins", sans-serif;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Glass navbar */
+.glass-nav {
+  background: rgba(11, 31, 58, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Dotted flight path divider */
+.flight-divider {
+  height: 2px;
+  background-image: radial-gradient(circle, #38bdf8 1.5px, transparent 1.5px);
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+}
+
+/* Boarding pass card */
+.boarding-pass {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1px dashed #38bdf8;
+  border-radius: 16px;
+  position: relative;
+}
+
+/* Button ripple */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0b1f3a; }
+::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 5px; }
