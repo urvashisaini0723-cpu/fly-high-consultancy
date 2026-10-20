@@ -40,10 +40,6 @@ const TeamCard = ({ member, flip = false }) => {
           <h4 className="font-display text-xl font-bold text-navy">{member.name}</h4>
           <p className="text-orange text-sm font-semibold">{member.role}</p>
           <p className="mt-3 text-navy/70 text-sm leading-relaxed">{member.desc}</p>
-          <div className="mt-4 flex gap-3 text-sky">
-            <Icons.FiLinkedin size={18} />
-            <Icons.FiInstagram size={18} />
-          </div>
         </div>
       </motion.div>
     </motion.div>

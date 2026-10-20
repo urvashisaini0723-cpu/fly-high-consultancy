@@ -4,7 +4,6 @@ import TeamCard from "../components/TeamCard";
 import { owners, team, ownerMessage } from "../data/team";
 import { motion } from "framer-motion";
 import { FaQuoteLeft } from "react-icons/fa";
-import { FiLinkedin, FiInstagram, FiMail } from "react-icons/fi";
 
 const Owner = () => {
   useEffect(() => { document.title = "Owner | Fly High Consultancy"; }, []);
@@ -43,17 +42,6 @@ const Owner = () => {
                 <h3 className="font-display text-4xl font-bold text-navy">{o.name}</h3>
                 <p className="text-orange font-semibold mt-1">{o.role}</p>
                 <p className="mt-4 text-navy/70 leading-relaxed text-lg">{o.bio}</p>
-                <div className="mt-6 flex gap-3 text-sky">
-                  <a href="#" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-navy/5 flex items-center justify-center hover:bg-sky hover:text-white transition-colors">
-                    <FiLinkedin />
-                  </a>
-                  <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-full bg-navy/5 flex items-center justify-center hover:bg-orange hover:text-white transition-colors">
-                    <FiInstagram />
-                  </a>
-                  <a href="mailto:urvashisaini0723@gmail.com" aria-label="Email" className="w-10 h-10 rounded-full bg-navy/5 flex items-center justify-center hover:bg-teal hover:text-white transition-colors">
-                    <FiMail />
-                  </a>
-                </div>
               </div>
             </motion.div>
           ))}
