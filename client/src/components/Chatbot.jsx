@@ -86,7 +86,7 @@ const Chatbot = () => {
     <>
       {/* Floating Trigger Button */}
       <motion.button
-        className={`fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+        className={`fixed bottom-5 right-5 z-50 w-32 h-32 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
           isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
         }`}
         onClick={toggleChat}
@@ -95,17 +95,17 @@ const Chatbot = () => {
         whileTap={{ scale: 0.9 }}
         style={{ 
           background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)",
-          boxShadow: "0 12px 48px rgba(14, 165, 233, 0.45), 0 0 0 3px rgba(255,255,255,0.15)"
+          boxShadow: "0 16px 64px rgba(14, 165, 233, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
         }}
       >
         <img 
           src="/logo.png" 
           alt="Fly High Consultancy" 
           className="w-full h-full object-contain"
-          style={{ width: "56px", height: "56px" }}
+          style={{ width: "112px", height: "112px" }}
         />
         {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-full border-2 border-sky-400/50 animate-ping" />
+        <span className="absolute inset-0 rounded-full border-3 border-sky-400/50 animate-ping" />
       </motion.button>
 
       {/* Chat Window */}
@@ -137,20 +137,20 @@ const Chatbot = () => {
                   <path d="M10 50 Q25 30 50 50 Q75 70 90 50" stroke="white" strokeWidth="2" strokeDasharray="10 5" opacity="0.5"/>
                 </svg>
               </div>
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center relative" 
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-24 h-24 rounded-full flex items-center justify-center relative" 
                   style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}>
                   <img 
                     src="/logo.png" 
                     alt="Fly High Consultancy" 
                     className="w-full h-full object-contain"
-                    style={{ width: "34px", height: "34px" }}
+                    style={{ width: "68px", height: "68px" }}
                   />
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-navy-900" />
+                  <span className="absolute bottom-0 right-0 w-6 h-6 bg-green-400 rounded-full border-3 border-navy-900" />
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-sm">FlyBot</p>
-                  <p className="text-sky-200 text-xs">Fly High Consultancy • Online</p>
+                  <p className="text-white font-semibold text-base">FlyBot</p>
+                  <p className="text-sky-200 text-sm">Fly High Consultancy • Online</p>
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
