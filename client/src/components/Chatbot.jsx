@@ -275,7 +275,7 @@ const Chatbot = () => {
 
             {/* Quick Questions (only when not maximized or first load) */}
             {!isMaximized && messages.length <= 1 && (
-              <div className="px-4 pb-2 space-y-1 border-t border-sky-100">
+              <div className="px-4 py-3 space-y-2 border-t border-sky-100 bg-white/50">
                 <p className="text-xs text-sky-600 px-2 mb-1 font-medium">Quick questions:</p>
                 <div className="flex flex-wrap gap-1">
                   {quickQuestions.map((q, i) => (
