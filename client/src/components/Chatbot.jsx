@@ -86,13 +86,21 @@ const Chatbot = () => {
     <>
       {/* Floating Trigger Button */}
       <motion.button
-        className={`fixed bottom-5 right-5 z-50 w-32 h-32 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+        className={`fixed bottom-5 right-5 z-50 w-32 h-32 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 group ${
           isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
         }`}
         onClick={toggleChat}
-        aria-label="Open FlyBot"
-        whileHover={{ scale: 1.12, rotate: 5 }}
+        aria-label="Open FlyBot - Chat with FlyBot"
+        whileHover={{ scale: 1.12, rotate: 3 }}
         whileTap={{ scale: 0.9 }}
+        animate={{ 
+          y: [0, -8, 0],
+          rotate: [0, 2, -2, 0]
+        }}
+        transition={{ 
+          y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+        }}
         style={{ 
           background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)",
           boxShadow: "0 16px 64px rgba(14, 165, 233, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
@@ -100,12 +108,28 @@ const Chatbot = () => {
       >
         <img 
           src="/logo.png" 
-          alt="Fly High Consultancy" 
+          alt="Fly High Consultancy - Chat with FlyBot" 
           className="w-full h-full object-contain"
           style={{ width: "112px", height: "112px" }}
         />
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full border-3 border-sky-400/50 animate-ping" />
+        {/* Chat bubble indicator */}
+        <motion.div
+          className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center"
+          style={{ background: "#10b981", boxShadow: "0 0 0 3px white" }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </motion.div>
+        {/* Tooltip */}
+        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 w-max whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100"
+          style={{ background: "#0f172a" }}>
+          Chat with FlyBot
+        </div>
       </motion.button>
 
       {/* Chat Window */}
