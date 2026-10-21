@@ -1,13 +1,34 @@
 import { motion } from "framer-motion";
 import { FiPhone } from "react-icons/fi";
-import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
+import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
+
+// Original Instagram logo with official gradient colors
+const InstagramIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="instaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#feda75"/>
+        <stop offset="30%" stopColor="#fa7e1e"/>
+        <stop offset="60%" stopColor="#d62976"/>
+        <stop offset="85%" stopColor="#962fbf"/>
+        <stop offset="100%" stopColor="#4f5bd5"/>
+      </linearGradient>
+    </defs>
+    {/* Outer rounded square */}
+    <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#instaGradient)" strokeWidth="2.5"/>
+    {/* Circle */}
+    <circle cx="12" cy="12" r="6.5" stroke="url(#instaGradient)" strokeWidth="2"/>
+    {/* Dot */}
+    <circle cx="17.5" cy="6.5" r="1.5" fill="url(#instaGradient)"/>
+  </svg>
+);
 
 const items = [
   {
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
-    icon: <FaInstagram />,
-    bg: "bg-gradient-to-br from-pink-500 to-orange-500",
+    icon: <InstagramIcon />,
+    bg: "bg-white", // White background to show the gradient logo
   },
   {
     href: "https://www.facebook.com/p/Flyhigh-Consultancy-Pehowa-61571970445323/",
