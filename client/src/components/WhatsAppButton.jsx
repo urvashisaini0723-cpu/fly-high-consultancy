@@ -31,7 +31,7 @@ const items = [
 
 const WhatsAppButton = () => {
   return (
-    <div className="fixed bottom-20 right-5 z-40 flex flex-col gap-3 items-end">
+    <div className="fixed right-5 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3 items-end">
       {items.map((it, i) => (
         <motion.a
           key={it.label}
