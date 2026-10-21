@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import WhatsAppButton from "./components/WhatsAppButton";
+import Chatbot from "./components/Chatbot";
 import Loader from "./components/Loader";
 import PageTransition from "./components/PageTransition";
 import Home from "./pages/Home";
@@ -104,6 +105,7 @@ const App = () => {
       </main>
       <Footer />
       <WhatsAppButton />
+      <Chatbot />
     </>
   );
 };

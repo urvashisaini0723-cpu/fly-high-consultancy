@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const contactRoutes = require("./routes/contact");
+const chatbotRoutes = require("./routes/chatbot");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -41,6 +42,7 @@ const contactLimiter = rateLimit({
 app.use("/api/contact", contactLimiter);
 
 app.use("/api/contact", contactRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {
