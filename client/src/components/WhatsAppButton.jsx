@@ -37,7 +37,7 @@ const items = [
     bg: "bg-blue-600",
   },
   {
-    href: "https://wa.me/919306142129",
+    href: "https://wa.me/919306142129?text=Hello%20Dear%2C%20how%20can%20I%20help%20you%20with%20FlyHigh%3F",
     label: "WhatsApp",
     icon: <FaWhatsapp size={22} />,
     bg: "bg-[#25D366]",
