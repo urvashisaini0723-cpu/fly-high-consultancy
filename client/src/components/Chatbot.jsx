@@ -198,13 +198,11 @@ const Chatbot = () => {
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ 
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q25 30 50 50 Q75 70 90 50' stroke='%230ea5e9' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E")`,
-              backgroundSize: "200px"
-            }}
-              onWheel={(e) => {
-                // Allow native scrolling when mouse is over messages area
-                e.currentTarget.scrollTop += e.deltaY;
-              }}
-            >
+              backgroundSize: "200px",
+              overscrollBehavior: 'contain',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#0ea5e9 transparent'
+            }}>
               <AnimatePresence mode="popLayout">
                 {messages.map((msg, idx) => (
                   <motion.div
