@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiSend, FiX, FiMaximize2, FiMinimize2, FiRefreshCw, FiUser, FiBot } from "react-icons/fi";
+import { FiSend, FiX, FiMaximize2, FiMinimize2, FiRefreshCw, FiUser, FiMessageSquare, FiCpu } from "react-icons/fi";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -213,7 +213,7 @@ const Chatbot = () => {
                         {msg.role === "assistant" && (
                           <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                             style={{ background: "linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%)" }}>
-                            <FiBot size={12} className="text-white" />
+                            <FiMessageSquare size={12} className="text-white" />
                           </div>
                         )}
                         <div className="prose prose-sm max-w-none">
@@ -242,7 +242,7 @@ const Chatbot = () => {
                   <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 rounded-2xl rounded-bl-md shadow-sm">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ background: "linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%)" }}>
-                      <FiBot size={12} className="text-white" />
+                      <FiMessageSquare size={12} className="text-white" />
                     </div>
                     <div className="flex gap-1">
                       <motion.div className="w-2 h-2 rounded-full bg-sky-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
