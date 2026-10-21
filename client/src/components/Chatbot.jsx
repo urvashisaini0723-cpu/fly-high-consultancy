@@ -6,7 +6,7 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hello! I'm FlyBot ✈️ — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything related to studying abroad!" }
+    { role: "assistant", content: "Hello! I'm FlyBot ✈️ — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything related to studying abroad." }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -196,12 +196,12 @@ const Chatbot = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ 
+            <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ 
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q25 30 50 50 Q75 70 90 50' stroke='%230ea5e9' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E")`,
               backgroundSize: "200px",
               overscrollBehavior: 'contain',
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#0ea5e9 transparent'
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
             }}>
               <AnimatePresence mode="popLayout">
                 {messages.map((msg, idx) => (
@@ -213,7 +213,7 @@ const Chatbot = () => {
                     transition={{ delay: idx * 0.05 }}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
+                    <div className={`max-w-[85%] px-3 py-2 rounded-2xl shadow-sm ${
                       msg.role === "user"
                         ? "rounded-br-md"
                         : "rounded-bl-md"
@@ -230,9 +230,9 @@ const Chatbot = () => {
                     >
                       <div className="flex items-start gap-2">
                         {msg.role === "assistant" && (
-                          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                             style={{ background: "linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%)" }}>
-                            <FiMessageSquare size={12} className="text-white" />
+                            <FiMessageSquare size={10} className="text-white" />
                           </div>
                         )}
                         <div className="prose prose-sm max-w-none">
@@ -275,14 +275,14 @@ const Chatbot = () => {
 
             {/* Quick Questions (only when not maximized or first load) */}
             {!isMaximized && messages.length <= 1 && (
-              <div className="px-4 py-3 space-y-2 border-t border-sky-100 bg-white/50">
-                <p className="text-xs text-sky-600 px-2 mb-1 font-medium">Quick questions:</p>
+              <div className="px-3 py-2 space-y-1 border-t border-sky-100 bg-white/50">
+                <p className="text-xs text-sky-600 px-1 mb-1 font-medium">Quick questions:</p>
                 <div className="flex flex-wrap gap-1">
                   {quickQuestions.map((q, i) => (
                     <motion.button
                       key={i}
                       onClick={() => { setInput(q); sendMessage(); }}
-                      className="px-3 py-1.5 text-xs rounded-full text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all whitespace-nowrap"
+                      className="px-2.5 py-1 text-xs rounded-full text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all whitespace-nowrap"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -294,7 +294,7 @@ const Chatbot = () => {
             )}
 
             {/* Input Area */}
-            <div className="p-4 border-t border-sky-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
+            <div className="p-3 border-t border-sky-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
               <div className="flex items-end gap-2">
                 <div className="flex-1 relative">
                   <textarea
@@ -303,21 +303,21 @@ const Chatbot = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask about visas, PTE, interviews..."
                     rows={1}
-                    maxRows={4}
+                    maxRows={3}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 pr-12 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-400 resize-none transition-all"
+                    className="w-full px-3 py-2 pr-10 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-400 resize-none transition-all"
                     style={{ 
-                      minHeight: "44px",
-                      maxHeight: "140px",
+                      minHeight: "40px",
+                      maxHeight: "120px",
                       fontFamily: "inherit"
                     }}
                   />
                   <button
                     onClick={clearChat}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 transition-colors flex items-center justify-center"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 transition-colors flex items-center justify-center"
                     aria-label="Clear chat"
                   >
-                    <FiRefreshCw size={16} />
+                    <FiRefreshCw size={14} />
                   </button>
                 </div>
                 <motion.button
