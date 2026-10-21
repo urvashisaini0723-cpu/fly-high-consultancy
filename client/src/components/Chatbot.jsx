@@ -5,8 +5,10 @@ import { FiSend, FiX, FiMaximize2, FiMinimize2, FiRefreshCw, FiUser, FiMessageSq
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showScrollbar, setShowScrollbar] = useState(false);
+  const messagesContainerRef = useRef(null);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hello! I'm FlyBot ✈️ — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything related to studying abroad." }
+    { role: "assistant", content: "Hi! I'm FlyBot — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything about studying abroad." }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +22,13 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
+    
+    // Check if content overflows container
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const hasOverflow = container.scrollHeight > container.clientHeight;
+      setShowScrollbar(hasOverflow);
+    }
   }, [messages]);
 
   // Send message to backend
@@ -196,13 +205,18 @@ const Chatbot = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ 
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q25 30 50 50 Q75 70 90 50' stroke='%230ea5e9' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E")`,
-              backgroundSize: "200px",
-              overscrollBehavior: 'contain',
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#0ea5e9 transparent'
-            }}>
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 p-3 space-y-3" 
+              style={{ 
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q25 30 50 50 Q75 70 90 50' stroke='%230ea5e9' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E")`,
+                backgroundSize: "200px",
+                overscrollBehavior: 'contain',
+                overflowY: showScrollbar ? 'auto' : 'hidden',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#0ea5e9 transparent'
+              }}
+            >
               <AnimatePresence mode="popLayout">
                 {messages.map((msg, idx) => (
                   <motion.div
