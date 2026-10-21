@@ -86,23 +86,23 @@ const Chatbot = () => {
     <>
       {/* Floating Trigger Button */}
       <motion.button
-        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+        className={`fixed bottom-5 right-5 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
           isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
         }`}
         onClick={toggleChat}
         aria-label="Open FlyBot"
-        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileHover={{ scale: 1.12, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
         style={{ 
           background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)",
-          boxShadow: "0 10px 40px rgba(14, 165, 233, 0.4), 0 0 0 2px rgba(255,255,255,0.1)"
+          boxShadow: "0 12px 48px rgba(14, 165, 233, 0.45), 0 0 0 3px rgba(255,255,255,0.15)"
         }}
       >
         <img 
           src="/logo.png" 
           alt="Fly High Consultancy" 
           className="w-full h-full object-contain"
-          style={{ width: "48px", height: "48px" }}
+          style={{ width: "56px", height: "56px" }}
         />
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full border-2 border-sky-400/50 animate-ping" />
@@ -138,15 +138,15 @@ const Chatbot = () => {
                 </svg>
               </div>
               <div className="flex items-center gap-3 relative z-10">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center relative" 
+                <div className="w-12 h-12 rounded-full flex items-center justify-center relative" 
                   style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}>
                   <img 
                     src="/logo.png" 
                     alt="Fly High Consultancy" 
                     className="w-full h-full object-contain"
-                    style={{ width: "28px", height: "28px" }}
+                    style={{ width: "34px", height: "34px" }}
                   />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-navy-900" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-navy-900" />
                 </div>
                 <div>
                   <p className="text-white font-semibold text-sm">FlyBot</p>
