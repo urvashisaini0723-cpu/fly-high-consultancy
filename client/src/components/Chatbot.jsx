@@ -98,19 +98,12 @@ const Chatbot = () => {
           boxShadow: "0 10px 40px rgba(14, 165, 233, 0.4), 0 0 0 2px rgba(255,255,255,0.1)"
         }}
       >
-        <svg width="36" height="36" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Airplane trail */}
-          <path d="M10 30 Q20 20 30 30 Q40 40 50 30" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="8 4" opacity="0.6">
-            <animate attributeName="stroke-dashoffset" from="0" to="20" dur="2s" repeatCount="indefinite" />
-          </path>
-          {/* FH Letters */}
-          <text x="30" y="38" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="2">FH</text>
-          {/* Small plane */}
-          <g transform="translate(42, 24) rotate(-15)">
-            <path d="M0 0 L-8 4 L-6 0 L-8 -4 Z" fill="white" opacity="0.9"/>
-            <circle cx="-10" cy="0" r="1.5" fill="white" opacity="0.7"/>
-          </g>
-        </svg>
+        <img 
+          src="/logo.png" 
+          alt="Fly High Consultancy" 
+          className="w-full h-full object-contain"
+          style={{ width: "48px", height: "48px" }}
+        />
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full border-2 border-sky-400/50 animate-ping" />
       </motion.button>
@@ -147,13 +140,12 @@ const Chatbot = () => {
               <div className="flex items-center gap-3 relative z-10">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center relative" 
                   style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}>
-                  <svg width="22" height="22" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 30 Q20 20 30 30 Q40 40 50 30" stroke="white" strokeWidth="2" strokeLinecap="round" strokeDasharray="8 4" opacity="0.7"/>
-                    <text x="30" y="38" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle" letter-spacing="2">FH</text>
-                    <g transform="translate(40, 22) rotate(-15) scale(0.7)">
-                      <path d="M0 0 L-8 4 L-6 0 L-8 -4 Z" fill="white" opacity="0.9"/>
-                    </g>
-                  </svg>
+                  <img 
+                    src="/logo.png" 
+                    alt="Fly High Consultancy" 
+                    className="w-full h-full object-contain"
+                    style={{ width: "28px", height: "28px" }}
+                  />
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-navy-900" />
                 </div>
                 <div>
