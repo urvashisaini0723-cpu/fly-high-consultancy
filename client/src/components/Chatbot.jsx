@@ -174,7 +174,7 @@ const Chatbot = () => {
                 </div>
                 <div>
                   <p className="text-white font-semibold text-base">FlyBot</p>
-                  <p className="text-sky-200 text-sm">Fly High Consultancy • Online</p>
+                  <p className="text-white text-sm">Fly High Consultancy • Online</p>
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
