@@ -2,19 +2,12 @@ import { motion } from "framer-motion";
 import { FiPhone } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
 
-// Instagram logo using actual image - background-image approach for clean circular crop
+// Instagram logo using actual image - sized to match other icons (22px)
 const InstagramIcon = () => (
-  <div 
-    className="w-6 h-6 rounded-full"
-    style={{ 
-      backgroundImage: "url('/instagram-logo.jpeg')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      borderRadius: "50%",
-      width: "24px",
-      height: "24px"
-    }}
+  <img 
+    src="/instagram-logo.jpeg" 
+    alt="Instagram" 
+    style={{ width: "22px", height: "22px", objectFit: "cover" }}
   />
 );
 
@@ -23,7 +16,7 @@ const items = [
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
     icon: <InstagramIcon />,
-    bg: "bg-transparent",
+    bg: "bg-gradient-to-br from-pink-500 via-orange-500 to-yellow-500",
   },
   {
     href: "https://www.facebook.com/p/Flyhigh-Consultancy-Pehowa-61571970445323/",
