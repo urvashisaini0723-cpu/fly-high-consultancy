@@ -17,7 +17,7 @@ const items = [
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
     icon: <InstagramIcon />,
-    bg: "bg-white",
+    bg: "bg-transparent",
   },
   {
     href: "https://www.facebook.com/p/Flyhigh-Consultancy-Pehowa-61571970445323/",
