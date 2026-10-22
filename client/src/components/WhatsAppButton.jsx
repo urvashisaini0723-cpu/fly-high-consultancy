@@ -1,12 +1,28 @@
 import { motion } from "framer-motion";
-import { FiPhone, FiInstagram } from "react-icons/fi";
+import { FiPhone } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
+
+// Instagram logo using original image - background-image approach with proper cropping
+const InstagramIcon = () => (
+  <div 
+    className="w-6 h-6 rounded-full"
+    style={{ 
+      backgroundImage: "url('/instagram-logo.jpeg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      borderRadius: "50%",
+      width: "22px",
+      height: "22px"
+    }}
+  />
+);
 
 const items = [
   {
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
-    icon: <FiInstagram size={22} />,
+    icon: <InstagramIcon />,
     bg: "bg-gradient-to-br from-pink-500 via-orange-500 to-yellow-500",
   },
   {
