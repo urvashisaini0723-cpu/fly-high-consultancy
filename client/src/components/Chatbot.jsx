@@ -81,16 +81,6 @@ const Chatbot = () => {
     if (!isOpen) setIsMaximized(false);
   };
 
-  // Suggested quick questions
-  const quickQuestions = [
-    "🇨🇦 Canada Study Visa requirements?",
-    "📝 PTE coaching batch timings?",
-    "🎤 Visa interview preparation?",
-    "💰 Fee structure for services?",
-    "📄 Documents needed for visa?",
-    "🏢 Office location & timings?"
-  ];
-
   return (
     <>
       {/* Floating Trigger Button */}
@@ -286,26 +276,6 @@ const Chatbot = () => {
                 </motion.div>
               )}
             </div>
-
-            {/* Quick Questions (only when not maximized or first load) */}
-            {!isMaximized && messages.length <= 1 && (
-              <div className="px-3 py-2 space-y-1 border-t border-sky-100 bg-white/50">
-                <p className="text-xs text-sky-600 px-1 mb-1 font-medium">Quick questions:</p>
-                <div className="flex flex-wrap gap-1">
-                  {quickQuestions.map((q, i) => (
-                    <motion.button
-                      key={i}
-                      onClick={() => { setInput(q); sendMessage(); }}
-                      className="px-2.5 py-1 text-xs rounded-full text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all whitespace-nowrap"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {q}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Input Area */}
             <div className="p-3 border-t border-sky-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
