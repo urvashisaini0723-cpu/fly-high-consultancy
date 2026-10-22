@@ -105,151 +105,31 @@ const Chatbot = () => {
           boxShadow: "0 16px 64px rgba(14, 165, 233, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
         }}
       >
-        {/* 3D Robot Head */}
-        <svg width="100" height="100" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="robotMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#e8ecf1"/>
-              <stop offset="30%" stopColor="#cbd5e1"/>
-              <stop offset="60%" stopColor="#94a3b8"/>
-              <stop offset="100%" stopColor="#64748b"/>
-            </linearGradient>
-            <linearGradient id="robotDark" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#1e293b"/>
-              <stop offset="50%" stopColor="#0f172a"/>
-              <stop offset="100%" stopColor="#020617"/>
-            </linearGradient>
-            <linearGradient id="eyeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#0ea5e9"/>
-              <stop offset="50%" stopColor="#06b6d4"/>
-              <stop offset="100%" stopColor="#0ea5e9"/>
-            </linearGradient>
-            <linearGradient id="antennaGlow" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="#0ea5e9"/>
-              <stop offset="100%" stopColor="#22d3ee"/>
-            </linearGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-            <filter id="innerShadow" x="-50%" y="-50%" width="200%" height="200%">
-              <feOffset dx="2" dy="2"/>
-              <feGaussianBlur stdDeviation="2" result="offset-blur"/>
-              <feComposite in="SourceGraphic" in2="offset-blur" operator="over"/>
-            </filter>
-          </defs>
-          
-          {/* Antenna base */}
-          <g className="antenna-group">
-            <rect x="57" y="5" width="6" height="18" rx="3" fill="url(#robotMetal)" stroke="#475569" strokeWidth="1"/>
-            <circle cx="60" cy="5" r="6" fill="url(#antennaGlow)" filter="url(#glow)">
-              <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            {/* Antenna signal waves */}
-            <g className="signal-waves">
-              <path d="M60 -2 Q70 3 60 8" stroke="#06b6d4" strokeWidth="1.5" fill="none" opacity="0.6">
-                <animate attributeName="opacity" values="0;0.6;0" dur="1.5s" repeatCount="indefinite" begin="0s"/>
-              </path>
-              <path d="M60 -2 Q50 3 60 8" stroke="#06b6d4" strokeWidth="1.5" fill="none" opacity="0.6">
-                <animate attributeName="opacity" values="0;0.6;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-              </path>
-            </g>
-          </g>
-          
-          {/* Head main shape */}
-          <rect x="15" y="25" width="90" height="70" rx="25" fill="url(#robotMetal)" stroke="#475569" strokeWidth="1.5" filter="url(#innerShadow)"/>
-          
-          {/* Face plate */}
-          <rect x="22" y="32" width="76" height="56" rx="18" fill="url(#robotDark)" stroke="#334155" strokeWidth="1"/>
-          
-          {/* Left Eye */}
-          <g className="eye-group">
-            <ellipse cx="45" cy="58" rx="14" ry="16" fill="#020617" stroke="#1e293b" strokeWidth="2"/>
-            <ellipse cx="45" cy="56" rx="10" ry="11" fill="url(#eyeGlow)" filter="url(#glow)">
-              <animate attributeName="ry" values="11;1;11" dur="4s" repeatCount="indefinite" begin="0s"/>
-              <animate attributeName="opacity" values="1;0.8;1" dur="3s" repeatCount="indefinite" begin="0s"/>
-            </ellipse>
-            <ellipse cx="42" cy="53" rx="3" ry="3" fill="#22d3ee" opacity="0.9"/>
-            <ellipse cx="48" cy="60" rx="2" ry="2" fill="#06b6d4" opacity="0.6"/>
-          </g>
-          
-          {/* Right Eye */}
-          <g className="eye-group">
-            <ellipse cx="75" cy="58" rx="14" ry="16" fill="#020617" stroke="#1e293b" strokeWidth="2"/>
-            <ellipse cx="75" cy="56" rx="10" ry="11" fill="url(#eyeGlow)" filter="url(#glow)">
-              <animate attributeName="ry" values="11;1;11" dur="4s" repeatCount="indefinite" begin="0.2s"/>
-              <animate attributeName="opacity" values="1;0.8;1" dur="3s" repeatCount="indefinite" begin="0.2s"/>
-            </ellipse>
-            <ellipse cx="72" cy="53" rx="3" ry="3" fill="#22d3ee" opacity="0.9"/>
-            <ellipse cx="78" cy="60" rx="2" ry="2" fill="#06b6d4" opacity="0.6"/>
-          </g>
-          
-          {/* Ear pieces / side panels */}
-          <rect x="5" y="40" width="12" height="35" rx="6" fill="url(#robotMetal)" stroke="#475569" strokeWidth="1">
-            <animate attributeName="x" values="5;3;5" dur="3s" repeatCount="indefinite"/>
-          </rect>
-          <rect x="103" y="40" width="12" height="35" rx="6" fill="url(#robotMetal)" stroke="#475569" strokeWidth="1">
-            <animate attributeName="x" values="103;105;103" dur="3s" repeatCount="indefinite"/>
-          </rect>
-          
-          {/* Ear lights */}
-          <circle cx="11" cy="57" r="3" fill="#0ea5e9" filter="url(#glow)">
-            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="109" cy="57" r="3" fill="#0ea5e9" filter="url(#glow)">
-            <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
-          </circle>
-          
-          {/* Mouth / speaker grill */}
-          <g className="mouth-group">
-            <rect x="48" y="80" width="24" height="6" rx="3" fill="#020617" stroke="#1e293b" strokeWidth="1"/>
-            <g className="mouth-lines">
-              <line x1="50" y1="81" x2="50" y2="85" stroke="#0ea5e9" strokeWidth="1.5" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="0.3s" repeatCount="indefinite"/>
-              </line>
-              <line x1="55" y1="81" x2="55" y2="85" stroke="#0ea5e9" strokeWidth="1.5" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="0.3s" repeatCount="indefinite" begin="0.05s"/>
-              </line>
-              <line x1="60" y1="81" x2="60" y2="85" stroke="#0ea5e9" strokeWidth="1.5" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="0.3s" repeatCount="indefinite" begin="0.1s"/>
-              </line>
-              <line x1="65" y1="81" x2="65" y2="85" stroke="#0ea5e9" strokeWidth="1.5" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="0.3s" repeatCount="indefinite" begin="0.15s"/>
-              </line>
-              <line x1="70" y1="81" x2="70" y2="85" stroke="#0ea5e9" strokeWidth="1.5" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="0.3s" repeatCount="indefinite" begin="0.2s"/>
-              </line>
-            </g>
-          </g>
-          
-          {/* Chin detail */}
-          <path d="M45 95 Q60 105 75 95" stroke="#475569" strokeWidth="2" fill="none" opacity="0.5"/>
-          
-          {/* Neck bolts */}
-          <circle cx="35" cy="92" r="3" fill="#475569"/>
-          <circle cx="85" cy="92" r="3" fill="#475569"/>
-          
-          {/* Subtle floating particles around head */}
-          <g className="particles">
-            <circle cx="10" cy="30" r="1.5" fill="#0ea5e9" opacity="0.6">
-              <animate attributeName="cy" values="30;25;30" dur="3s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="110" cy="35" r="1" fill="#22d3ee" opacity="0.5">
-              <animate attributeName="cy" values="35;30;35" dur="2.5s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.5s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="8" cy="90" r="1" fill="#0ea5e9" opacity="0.4">
-              <animate attributeName="cx" values="8;5;8" dur="4s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="112" cy="88" r="1.2" fill="#22d3ee" opacity="0.5">
-              <animate attributeName="cx" values="112;115;112" dur="3.5s" repeatCount="indefinite"/>
-            </circle>
-          </g>
-        </svg>
+        {/* Robot Mascot Image with 3D Effect */}
+        <div className="relative w-full h-full flex items-center justify-center" style={{ 
+          transformStyle: "preserve-3d",
+          perspective: "1000px"
+        }}>
+          <img 
+            src="/chatbot-robot.jpeg" 
+            alt="FlyBot - Your AI Assistant" 
+            className="w-full h-full object-cover rounded-full"
+            style={{ 
+              width: "128px", 
+              height: "128px",
+              transform: "translateZ(20px)",
+              filter: "drop-shadow(0 8px 24px rgba(14, 165, 233, 0.6))",
+              transition: "transform 0.3s ease, filter 0.3s ease"
+            }}
+          />
+          {/* 3D Glow Ring */}
+          <div className="absolute inset-0 rounded-full" style={{
+            background: "linear-gradient(135deg, transparent 40%, rgba(14, 165, 233, 0.3) 100%)",
+            transform: "translateZ(-10px)",
+            filter: "blur(8px)",
+            opacity: 0.6
+          }} />
+        </div>
         
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full border-3 border-sky-400/50 animate-ping" />
