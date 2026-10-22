@@ -1,21 +1,12 @@
 import { motion } from "framer-motion";
-import { FiPhone } from "react-icons/fi";
+import { FiPhone, FiInstagram } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
-
-// Instagram logo using actual image - sized to match other icons (22px)
-const InstagramIcon = () => (
-  <img 
-    src="/instagram-logo.jpeg" 
-    alt="Instagram" 
-    style={{ width: "22px", height: "22px", objectFit: "cover" }}
-  />
-);
 
 const items = [
   {
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
-    icon: <InstagramIcon />,
+    icon: <FiInstagram size={22} />,
     bg: "bg-gradient-to-br from-pink-500 via-orange-500 to-yellow-500",
   },
   {
