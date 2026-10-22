@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import Navbar from "./components/Navbar";
@@ -54,11 +54,12 @@ const App = () => {
   if (loading) return <Loader />;
 
   return (
-    <>
-      <Navbar />
-      <main className="pt-0">
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <>
+        <Navbar />
+        <main className="pt-0">
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
             <Route
               path="/"
               element={
@@ -101,12 +102,13 @@ const App = () => {
               }
             />
           </Routes>
-        </AnimatePresence>
-      </main>
-      <Footer />
-      <WhatsAppButton />
-      <Chatbot />
-    </>
+          </AnimatePresence>
+        </main>
+        <Footer />
+        <WhatsAppButton />
+        <Chatbot />
+      </>
+    </BrowserRouter>
   );
 };
 

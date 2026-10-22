@@ -317,7 +317,6 @@ const Chatbot = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask about visas, PTE, interviews..."
                     rows={1}
-                    maxRows={3}
                     disabled={isLoading}
                     className="w-full px-3 py-2 pr-10 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-400 resize-none transition-all"
                     style={{ 
