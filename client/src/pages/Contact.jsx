@@ -45,6 +45,13 @@ const Contact = () => {
                 </div>
               </div>
               <div className="flex gap-3 items-start">
+                <FiMail className="text-orange text-2xl shrink-0 mt-1" />
+                <div>
+                  <div className="font-semibold text-navy">Email</div>
+                  <a href="mailto:urvashisaini0723@gmail.com" className="text-sky hover:underline">urvashisaini0723@gmail.com</a>
+                </div>
+              </div>
+              <div className="flex gap-3 items-start">
                 <FaWhatsapp className="text-[#25D366] text-2xl shrink-0 mt-1" />
                 <div>
                   <div className="font-semibold text-navy">WhatsApp</div>
