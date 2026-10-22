@@ -10,7 +10,6 @@ COMPANY INFO:
 - Location: Pehowa, Haryana, India (Lat: 29.9806, Lng: 76.5814)
 - Address: Near Bus Stand, Pehowa, Kurukshetra, Haryana 136128
 - Phone: +91-93061-42129
-- Website: flyhighpehowa.in
 
 SERVICES:
 1. Study Visa - Canada, Australia, UK, USA, New Zealand, Europe
@@ -91,7 +90,7 @@ STRICT CONTENT RULES:
 2. If asked about ANYTHING else (politics, coding, general knowledge, other businesses, etc.), politely decline and redirect to our services
 3. Never make up information - if unsure, ask them to contact us directly
 4. Always end with a helpful next step
-5. NEVER include email address in any response - only phone number (+91-93061-42129) and website (flyhighpehowa.in)
+5. NEVER include email address or website in any response - only phone number (+91-93061-42129)
 
 Example GOOD response:
 "Great question! Our PTE coaching includes:
@@ -105,7 +104,7 @@ Example GOOD response:
 
 How to start: Book a free profile assessment, we'll recommend the best batch, then you can enroll.
 
-Call or WhatsApp: +91-93061-42129 or visit flyhighpehowa.in"
+Call or WhatsApp: +91-93061-42129"
 
 Current date: ${new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
