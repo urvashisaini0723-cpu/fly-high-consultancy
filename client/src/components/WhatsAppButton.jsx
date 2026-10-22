@@ -2,13 +2,19 @@ import { motion } from "framer-motion";
 import { FiPhone } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
 
-// Instagram logo using actual image
+// Instagram logo using actual image - background-image approach for clean circular crop
 const InstagramIcon = () => (
-  <img 
-    src="/instagram-logo.jpeg" 
-    alt="Instagram" 
-    className="object-cover"
-    style={{ width: "24px", height: "24px", mixBlendMode: "multiply", borderRadius: "50%" }}
+  <div 
+    className="w-6 h-6 rounded-full"
+    style={{ 
+      backgroundImage: "url('/instagram-logo.jpeg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      borderRadius: "50%",
+      width: "24px",
+      height: "24px"
+    }}
   />
 );
 
