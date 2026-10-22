@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import Navbar from "./components/Navbar";
@@ -54,12 +54,11 @@ const App = () => {
   if (loading) return <Loader />;
 
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <>
-        <Navbar />
-        <main className="pt-0">
-          <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
+    <>
+      <Navbar />
+      <main className="pt-0">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
             <Route
               path="/"
               element={
@@ -108,7 +107,6 @@ const App = () => {
         <WhatsAppButton />
         <Chatbot />
       </>
-    </BrowserRouter>
   );
 };
 
