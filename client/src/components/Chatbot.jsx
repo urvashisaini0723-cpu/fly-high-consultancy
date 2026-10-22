@@ -254,18 +254,6 @@ const Chatbot = () => {
         {/* Pulse ring */}
         <span className="absolute inset-0 rounded-full border-3 border-sky-400/50 animate-ping" />
         
-        {/* Chat bubble indicator */}
-        <motion.div
-          className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center"
-          style={{ background: "#10b981", boxShadow: "0 0 0 3px white" }}
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </motion.div>
-        
         {/* Tooltip */}
         <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 w-max whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100"
           style={{ background: "#0f172a" }}>
