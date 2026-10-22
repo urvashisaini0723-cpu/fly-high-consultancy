@@ -1,19 +1,48 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiSend, FiX, FiMaximize2, FiMinimize2, FiRefreshCw, FiUser, FiMessageSquare, FiCpu } from "react-icons/fi";
+import { 
+  FiSend, 
+  FiX, 
+  FiMaximize2, 
+  FiMinimize2, 
+  FiRefreshCw, 
+  FiUser, 
+  FiMessageSquare, 
+  FiCpu,
+  FiHelpCircle,
+  FiInfo,
+  FiMail,
+  FiPhone,
+  FiClock
+} from "react-icons/fi";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showScrollbar, setShowScrollbar] = useState(false);
-  const messagesContainerRef = useRef(null);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! I'm FlyBot — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything about studying abroad." }
+    { 
+      role: "assistant", 
+      content: "Hi! I'm FlyBot — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything about studying abroad.",
+      timestamp: new Date()
+    }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  // Check mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Scroll to bottom
   const scrollToBottom = () => {
@@ -22,8 +51,10 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
-    
-    // Check if content overflows container
+  }, [messages]);
+
+  // Check scrollbar visibility
+  useEffect(() => {
     if (messagesContainerRef.current) {
       const container = messagesContainerRef.current;
       const hasOverflow = container.scrollHeight > container.clientHeight;
@@ -31,12 +62,22 @@ const Chatbot = () => {
     }
   }, [messages]);
 
+  // Format timestamp
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString("en-US", { 
+      hour: "2-digit", 
+      minute: "2-digit",
+      hour12: true 
+    });
+  };
+
   // Send message to backend
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
-    setMessages(prev => [...prev, { role: "user", content: userMessage }]);
+    const userMsg = { role: "user", content: userMessage, timestamp: new Date() };
+    setMessages(prev => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
 
@@ -51,9 +92,9 @@ const Chatbot = () => {
       });
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: "assistant", content: data.reply || "Sorry, something went wrong!" }]);
+      setMessages(prev => [...prev, { role: "assistant", content: data.reply || "Sorry, something went wrong!", timestamp: new Date() }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Oops! Connection issue. Please try again or WhatsApp us at +91-93061-42129 📱" }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Oops! Connection issue. Please try again or WhatsApp us at +91-93061-42129 📱", timestamp: new Date() }]);
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +109,7 @@ const Chatbot = () => {
 
   const clearChat = () => {
     setMessages([
-      { role: "assistant", content: "Chat cleared! How can I help you with Fly High Consultancy services today? ✈️" }
+      { role: "assistant", content: "Chat cleared! How can I help you with Fly High Consultancy services today? ✈️", timestamp: new Date() }
     ]);
   };
 
@@ -81,16 +122,40 @@ const Chatbot = () => {
     if (!isOpen) setIsMaximized(false);
   };
 
+  // Quick reply questions
+  const quickReplies = [
+    { text: "What services do you offer?", icon: FiHelpCircle },
+    { text: "Tell me about PTE coaching", icon: FiInfo },
+    { text: "How can I contact you?", icon: FiMail },
+    { text: "I need help with something else", icon: FiHelpCircle },
+  ];
+
+  const handleQuickReply = (text) => {
+    setInput(text);
+    sendMessage();
+  };
+
+  // Mobile styles
+  const mobileStyles = {
+    width: isMobile ? "100vw" : isMaximized ? "500px" : "380px",
+    height: isMobile ? "100vh" : isMaximized ? "650px" : "520px",
+    maxWidth: isMobile ? "100vw" : "90vw",
+    maxHeight: isMobile ? "100vh" : "85vh",
+    borderRadius: isMobile ? "0" : "1.5rem",
+    bottom: isMobile ? "0" : "1.25rem",
+    right: isMobile ? "0" : "1.25rem",
+  };
+
   return (
     <>
       {/* Floating Trigger Button */}
       <motion.button
-        className={`fixed bottom-5 right-5 z-50 w-32 h-32 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 group ${
+        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 group ${
           isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
         }`}
         onClick={toggleChat}
         aria-label="Open FlyBot - Chat with FlyBot"
-        whileHover={{ scale: 1.12, rotate: 3 }}
+        whileHover={{ scale: 1.1, rotate: 3 }}
         whileTap={{ scale: 0.9 }}
         animate={{ 
           y: [0, -8, 0],
@@ -101,311 +166,91 @@ const Chatbot = () => {
           rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" }
         }}
         style={{ 
-          background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)",
-          boxShadow: "0 16px 64px rgba(14, 165, 233, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          boxShadow: "0 16px 64px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
         }}
       >
-        {/* Premium 3D Robot Mascot - Custom SVG */}
-        <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" style={{ transform: "translateZ(20px)" }}>
+        {/* Robot Mascot - Premium SVG */}
+        <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ transform: "translateZ(20px)" }}>
           <defs>
-            {/* Premium Metal Gradients */}
-            <linearGradient id="premiumMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f8fafc"/>
-              <stop offset="15%" stopColor="#e2e8f0"/>
-              <stop offset="35%" stopColor="#cbd5e1"/>
-              <stop offset="50%" stopColor="#94a3b8"/>
-              <stop offset="65%" stopColor="#64748b"/>
-              <stop offset="80%" stopColor="#475569"/>
-              <stop offset="100%" stopColor="#1e293b"/>
+            <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#667eea"/>
+              <stop offset="50%" stopColor="#764ba2"/>
+              <stop offset="100%" stopColor="#667eea"/>
             </linearGradient>
-            <linearGradient id="darkChrome" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#334155"/>
-              <stop offset="30%" stopColor="#1e293b"/>
-              <stop offset="60%" stopColor="#0f172a"/>
-              <stop offset="100%" stopColor="#020617"/>
+            <linearGradient id="eyeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#a855f7"/>
+              <stop offset="50%" stopColor="#ec4899"/>
+              <stop offset="100%" stopColor="#a855f7"/>
             </linearGradient>
-            <linearGradient id="electricBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0ea5e9"/>
-              <stop offset="30%" stopColor="#06b6d4"/>
-              <stop offset="60%" stopColor="#0ea5e9"/>
-              <stop offset="100%" stopColor="#22d3ee"/>
-            </linearGradient>
-            <linearGradient id="warmGlow" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="#0ea5e9"/>
-              <stop offset="50%" stopColor="#22d3ee"/>
-              <stop offset="100%" stopColor="#67e8f9"/>
-            </linearGradient>
-            <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.8"/>
-              <stop offset="40%" stopColor="#0ea5e9" stopOpacity="0.4"/>
-              <stop offset="100%" stopColor="#020617" stopOpacity="0"/>
-            </radialGradient>
-            
-            {/* Premium Filters */}
-            <filter id="premiumGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-            <filter id="innerDepth" x="-50%" y="-50%" width="200%" height="200%">
-              <feOffset dx="2" dy="3"/>
-              <feGaussianBlur stdDeviation="2" result="shadow"/>
-              <feComposite in="SourceGraphic" in2="shadow" operator="over"/>
-            </filter>
-            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0ea5e9" flood-opacity="0.4"/>
-            </filter>
-            <filter id="sharpGlow" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="2" result="glow"/>
-              <feComposite in="SourceGraphic" in2="glow" operator="over"/>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
             </filter>
           </defs>
           
-          {/* Ambient Glow Behind Robot */}
-          <circle cx="64" cy="64" r="56" fill="url(#coreGlow)" filter="url(#softShadow)" opacity="0.6">
-            <animate attributeName="r" values="56;58;56" dur="4s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.6;0.8;0.6" dur="4s" repeatCount="indefinite"/>
-          </circle>
+          {/* Head */}
+          <rect x="10" y="8" width="36" height="32" rx="14" fill="url(#robotGradient)" filter="url(#glow)"/>
           
-          {/* Floating Energy Particles */}
-          <g className="energy-particles" filter="url(#sharpGlow)">
-            <circle cx="15" cy="20" r="1.5" fill="#67e8f9" opacity="0.7">
-              <animate attributeName="cy" values="20;15;20" dur="3s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="118" cy="25" r="1" fill="#67e8f9" opacity="0.5">
-              <animate attributeName="cy" values="25;18;25" dur="2.5s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="8" cy="95" r="1" fill="#67e8f9" opacity="0.4">
-              <animate attributeName="cx" values="8;5;8" dur="4s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="120" cy="92" r="1.2" fill="#67e8f9" opacity="0.5">
-              <animate attributeName="cx" values="120;123;120" dur="3.5s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="18" cy="110" r="1" fill="#67e8f9" opacity="0.5">
-              <animate attributeName="cy" values="110;105;110" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="110" cy="115" r="1" fill="#67e8f9" opacity="0.4">
-              <animate attributeName="cx" values="110;107;110" dur="3.5s" repeatCount="indefinite"/>
-            </circle>
-          </g>
-          
-          {/* Antenna Assembly */}
-          <g className="antenna-assembly" transform="translate(64, 64)">
-            <animateTransform attributeName="transform" type="rotate" values="0;2;-2;0" dur="4s" repeatCount="indefinite" additive="sum"/>
-            
-            {/* Antenna Base */}
-            <rect x="-3" y="-58" width="6" height="22" rx="3" fill="url(#premiumMetal)" stroke="#475569" strokeWidth="1" filter="url(#innerDepth)"/>
-            
-            {/* Antenna Joint */}
-            <circle cx="0" cy="-58" r="5" fill="url(#premiumMetal)" stroke="#64748b" strokeWidth="1">
-              <animate attributeName="r" values="5;6;5" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            
-            {/* Antenna Tip - Glowing Core */}
-            <circle cx="0" cy="-65" r="7" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-              <animate attributeName="r" values="7;9;7" dur="1.5s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="1;0.6;1" dur="1.5s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="0" cy="-65" r="4" fill="#67e8f9" filter="url(#premiumGlow)">
-              <animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite" begin="0.2s"/>
-            </circle>
-            
-            {/* Signal Waves */}
-            <g className="signal-waves" stroke="#22d3ee" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round">
-              <path d="M-12 -65 Q-18 -70 -12 -75">
-                <animate attributeName="opacity" values="0;0.5;0" dur="1.5s" repeatCount="indefinite"/>
-              </path>
-              <path d="M12 -65 Q18 -70 12 -75">
-                <animate attributeName="opacity" values="0;0.5;0" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
-              </path>
-              <path d="M0 -65 Q0 -73 0 -80" strokeWidth="2">
-                <animate attributeName="opacity" values="0;0.6;0" dur="1.5s" repeatCount="indefinite" begin="0.25s"/>
-              </path>
-            </g>
-          </g>
-          
-          {/* Head - Main Shape with Premium Metal Finish */}
-          <rect x="12" y="16" width="104" height="80" rx="28" fill="url(#premiumMetal)" stroke="#64748b" strokeWidth="1.5" filter="url(#innerDepth)"/>
-          
-          {/* Head Highlight Reflections */}
-          <rect x="18" y="20" width="92" height="20" rx="20" fill="url(#premiumMetal)" opacity="0.3" filter="url(#softShadow)"/>
-          <ellipse cx="64" cy="30" rx="35" ry="8" fill="#f8fafc" opacity="0.15" filter="url(#softShadow)"/>
-          
-          {/* Face Plate - Dark Chrome */}
-          <rect x="22" y="26" width="84" height="62" rx="22" fill="url(#darkChrome)" stroke="#334155" strokeWidth="1.5"/>
-          
-          {/* Face Plate Highlight */}
-          <rect x="28" y="30" width="72" height="12" rx="10" fill="#475569" opacity="0.2"/>
-          
-          {/* Left Eye Assembly */}
-          <g className="eye-left" transform="translate(50, 58)">
-            {/* Eye Socket */}
-            <ellipse cx="0" cy="0" rx="18" ry="20" fill="#020617" stroke="#1e293b" strokeWidth="2"/>
-            
-            {/* Eye Outer Ring */}
-            <ellipse cx="0" cy="0" rx="14" ry="15" fill="none" stroke="url(#electricBlue)" strokeWidth="1.5" opacity="0.6"/>
-            
-            {/* Eye Lens - Dynamic */}
-            <ellipse cx="0" cy="-1" rx="11" ry="12" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-              <animate attributeName="ry" values="12;2;12" dur="4s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="1;0.85;1" dur="3s" repeatCount="indefinite"/>
+          {/* Eyes */}
+          <g transform="translate(28, 30)">
+            <ellipse cx="-10" cy="0" rx="7" ry="8" fill="#1a1a2e"/>
+            <ellipse cx="-10" cy="-1" rx="5" ry="6" fill="url(#eyeGlow)">
+              <animate attributeName="ry" values="6;2;6" dur="4s" repeatCount="indefinite"/>
             </ellipse>
-            
-            {/* Pupil Core */}
-            <ellipse cx="-2" cy="-2" rx="4" ry="4" fill="#67e8f9" filter="url(#premiumGlow)">
-              <animate attributeName="cx" values="-2;2;-2" dur="4s" repeatCount="indefinite"/>
-            </ellipse>
-            
-            {/* Specular Highlights */}
-            <ellipse cx="-4" cy="-5" rx="2.5" ry="2.5" fill="#67e8f9" opacity="0.9"/>
-            <ellipse cx="4" cy="6" rx="1.5" ry="1.5" fill="#22d3ee" opacity="0.6"/>
-            
-            {/* Eye Glint Animation */}
-            <ellipse cx="-6" cy="-6" rx="1.5" ry="1.5" fill="#fff" opacity="0.8">
-              <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite"/>
+            <ellipse cx="10" cy="0" rx="7" ry="8" fill="#1a1a2e"/>
+            <ellipse cx="10" cy="-1" rx="5" ry="6" fill="url(#eyeGlow)">
+              <animate attributeName="ry" values="6;2;6" dur="4s" repeatCount="indefinite" begin="0.2s"/>
             </ellipse>
           </g>
           
-          {/* Right Eye Assembly */}
-          <g className="eye-right" transform="translate(78, 58)">
-            <ellipse cx="0" cy="0" rx="18" ry="20" fill="#020617" stroke="#1e293b" strokeWidth="2"/>
-            <ellipse cx="0" cy="0" rx="14" ry="15" fill="none" stroke="url(#electricBlue)" strokeWidth="1.5" opacity="0.6"/>
-            <ellipse cx="0" cy="-1" rx="11" ry="12" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-              <animate attributeName="ry" values="12;2;12" dur="4s" repeatCount="indefinite" begin="0.2s"/>
-              <animate attributeName="opacity" values="1;0.85;1" dur="3s" repeatCount="indefinite" begin="0.2s"/>
-            </ellipse>
-            <ellipse cx="-2" cy="-2" rx="4" ry="4" fill="#67e8f9" filter="url(#premiumGlow)">
-              <animate attributeName="cx" values="-2;2;-2" dur="4s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="-4" cy="-5" rx="2.5" ry="2.5" fill="#67e8f9" opacity="0.9"/>
-            <ellipse cx="4" cy="6" rx="1.5" ry="1.5" fill="#22d3ee" opacity="0.6"/>
-            <ellipse cx="-6" cy="-6" rx="1.5" ry="1.5" fill="#fff" opacity="0.8">
-              <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
-            </ellipse>
+          {/* Antenna */}
+          <g transform="translate(28, 8)">
+            <rect x="-2" y="-14" width="4" height="16" rx="2" fill="#667eea"/>
+            <circle cx="0" cy="-14" r="4" fill="#a855f7">
+              <animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <path d="M-8 -14 Q-12 -18 -8 -18" stroke="#a855f7" strokeWidth="2" fill="none" opacity="0.6">
+              <animate attributeName="opacity" values="0;0.6;0" dur="1.5s" repeatCount="indefinite"/>
+            </path>
           </g>
           
-          {/* Ear Pods - Side Modules */}
-          <g className="ear-pods">
-            <g transform="translate(8, 56)">
-              <rect x="0" y="0" width="14" height="42" rx="7" fill="url(#premiumMetal)" stroke="#64748b" strokeWidth="1" filter="url(#innerDepth)">
-                <animate attributeName="x" values="0;-3;0" dur="3s" repeatCount="indefinite"/>
-              </rect>
-              <circle cx="7" cy="21" r="4" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-              </circle>
-              <rect x="3" y="6" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-              <rect x="3" y="14" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-              <rect x="3" y="28" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-            </g>
-            <g transform="translate(106, 56)">
-              <rect x="0" y="0" width="14" height="42" rx="7" fill="url(#premiumMetal)" stroke="#64748b" strokeWidth="1" filter="url(#innerDepth)">
-                <animate attributeName="x" values="0;3;0" dur="3s" repeatCount="indefinite"/>
-              </rect>
-              <circle cx="7" cy="21" r="4" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
-              </circle>
-              <rect x="3" y="6" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-              <rect x="3" y="14" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-              <rect x="3" y="28" width="8" height="4" rx="2" fill="#334155" opacity="0.5"/>
-            </g>
-          </g>
-          
-          {/* Ear Pod Status Lights */}
-          <circle cx="15" cy="77" r="3.5" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-            <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-          </circle>
-          <circle cx="113" cy="77" r="3.5" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-            <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
-          </circle>
-          
-          {/* Mouth / Voice Visualizer */}
-          <g className="mouth-visualizer" transform="translate(64, 84)">
-            <rect x="-18" y="0" width="36" height="8" rx="4" fill="#020617" stroke="#1e293b" strokeWidth="1.5"/>
-            
-            {/* Equalizer Bars - Animated */}
+          {/* Mouth */}
+          <g transform="translate(28, 62)">
+            <rect x="-10" y="0" width="20" height="4" rx="2" fill="#1a1a2e"/>
             <g className="eq-bars">
-              <rect x="-14" y="1" width="4" height="6" rx="1" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="height" values="6;12;6;8;10;6" dur="0.4s" repeatCount="indefinite"/>
+              <rect x="-7" y="1" width="3" height="4" rx="1" fill="#a855f7">
+                <animate attributeName="height" values="4;10;4;8;6;4" dur="0.4s" repeatCount="indefinite"/>
                 <animate attributeName="y" values="1;-5;1;-3;-1;1" dur="0.4s" repeatCount="indefinite"/>
               </rect>
-              <rect x="-8" y="1" width="4" height="6" rx="1" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="height" values="6;10;6;12;6" dur="0.4s" repeatCount="indefinite" begin="0.05s"/>
+              <rect x="-3" y="1" width="3" height="4" rx="1" fill="#a855f7">
+                <animate attributeName="height" values="4;8;4;10;4" dur="0.4s" repeatCount="indefinite" begin="0.05s"/>
                 <animate attributeName="y" values="1;-3;1;-5;1" dur="0.4s" repeatCount="indefinite" begin="0.05s"/>
               </rect>
-              <rect x="-2" y="1" width="4" height="6" rx="1" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="height" values="6;8;6;10;6" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
+              <rect x="1" y="1" width="3" height="4" rx="1" fill="#a855f7">
+                <animate attributeName="height" values="4;6;4;8;4" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
                 <animate attributeName="y" values="1;-1;1;-3;1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
               </rect>
-              <rect x="4" y="1" width="4" height="6" rx="1" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="height" values="6;12;6;8;10;6" dur="0.4s" repeatCount="indefinite" begin="0.15s"/>
+              <rect x="5" y="1" width="3" height="4" rx="1" fill="#a855f7">
+                <animate attributeName="height" values="4;10;4;8;6;4" dur="0.4s" repeatCount="indefinite" begin="0.15s"/>
                 <animate attributeName="y" values="1;-5;1;-3;-1;1" dur="0.4s" repeatCount="indefinite" begin="0.15s"/>
               </rect>
-              <rect x="10" y="1" width="4" height="6" rx="1" fill="url(#electricBlue)" filter="url(#premiumGlow)">
-                <animate attributeName="height" values="6;10;6;12;6" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-                <animate attributeName="y" values="1;-3;1;-5;1" dur="0.4s" repeatCount="indefinite" begin="0.2s"/>
-              </rect>
             </g>
-          </g>
-          
-          {/* Chin / Jaw Detail */}
-          <path d="M40 102 Q64 112 88 102" stroke="#475569" strokeWidth="2" fill="none" opacity="0.6"/>
-          <ellipse cx="64" cy="100" rx="8" ry="3" fill="#1e293b" opacity="0.5"/>
-          
-          {/* Neck / Base Connection */}
-          <g transform="translate(64, 100)">
-            <rect x="-18" y="0" width="36" height="10" rx="3" fill="url(#premiumMetal)" stroke="#64748b" strokeWidth="1" filter="url(#innerDepth)"/>
-            <circle cx="-12" cy="5" r="2.5" fill="#475569"/>
-            <circle cx="12" cy="5" r="2.5" fill="#475569"/>
-          </g>
-          
-          {/* Data Ports on Sides */}
-          <g className="data-ports">
-            <g transform="translate(4, 48)">
-              <rect x="0" y="0" width="6" height="18" rx="2" fill="#1e293b" stroke="#334155" strokeWidth="1"/>
-              <rect x="1" y="2" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.7">
-                <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
-              </rect>
-              <rect x="1" y="7" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.5">
-                <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" begin="0.3s"/>
-              </rect>
-              <rect x="1" y="12" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.5">
-                <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" begin="0.6s"/>
-              </rect>
-            </g>
-            <g transform="translate(118, 48)">
-              <rect x="0" y="0" width="6" height="18" rx="2" fill="#1e293b" stroke="#334155" strokeWidth="1"/>
-              <rect x="1" y="2" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.7">
-                <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
-              </rect>
-              <rect x="1" y="7" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.5">
-                <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" begin="0.3s"/>
-              </rect>
-              <rect x="1" y="12" width="4" height="3" rx="1" fill="#0ea5e9" opacity="0.5">
-                <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite" begin="0.6s"/>
-              </rect>
-            </g>
-          </g>
-          
-          {/* Holographic Projection Effect */}
-          <g className="holo-projection" transform="translate(64, 64)" opacity="0.15">
-            <circle cx="0" cy="0" r="40" fill="none" stroke="url(#electricBlue)" strokeWidth="1" strokeDasharray="8 4">
-              <animate attributeName="r" values="40;50;40" dur="3s" repeatCount="indefinite"/>
-              <animate attributeName="opacity" values="0.15;0.3;0.15" dur="3s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="0" cy="0" r="30" fill="none" stroke="url(#electricBlue)" strokeWidth="0.5" strokeDasharray="4 8">
-              <animate attributeName="r" values="30;40;30" dur="3s" repeatCount="indefinite" begin="1.5s"/>
-              <animate attributeName="opacity" values="0.1;0.2;0.1" dur="3s" repeatCount="indefinite" begin="1.5s"/>
-            </circle>
           </g>
         </svg>
         
         {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-full border-3 border-sky-400/50 animate-ping" />
+        <span className="absolute inset-0 rounded-full border-3 border-purple-400/50 animate-ping" />
+        
+        {/* Online indicator */}
+        <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-3 border-white animate-pulse" />
         
         {/* Tooltip */}
-        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-4 w-max whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100"
-          style={{ background: "#0f172a" }}>
+        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 w-max whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100"
+          style={{ background: "#1a1a2e" }}>
           Chat with FlyBot
         </div>
       </motion.button>
@@ -420,39 +265,49 @@ const Chatbot = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`fixed bottom-5 right-5 z-50 flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 ${
-              isMaximized 
-                ? "w-[500px] h-[650px] max-w-[90vw] max-h-[85vh]" 
-                : "w-[380px] h-[520px]"
-            }`}
+            className="fixed flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 z-50"
             style={{
-              background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
-              border: "1px solid rgba(14, 165, 233, 0.15)",
-              boxShadow: "0 25px 80px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(255,255,255,0.5)"
+              ...mobileStyles,
+              background: "linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
+              border: "1px solid rgba(168, 111, 247, 0.15)",
+              boxShadow: "0 25px 80px rgba(102, 126, 234, 0.15), 0 0 0 1px rgba(255,255,255,0.5)",
             }}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 relative overflow-hidden"
-              style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)" }}>
+              style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
               <div className="absolute inset-0 opacity-10">
                 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10 50 Q25 30 50 50 Q75 70 90 50" stroke="white" strokeWidth="2" strokeDasharray="10 5" opacity="0.5"/>
                 </svg>
               </div>
-              <div className="flex items-center gap-4 relative z-10">
-                <div className="w-24 h-24 rounded-full flex items-center justify-center relative" 
-                  style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}>
-                  <img 
-                    src="/logo.png" 
-                    alt="Fly High Consultancy" 
-                    className="w-full h-full object-contain"
-                    style={{ width: "68px", height: "68px" }}
-                  />
-                  <span className="absolute bottom-0 right-0 w-6 h-6 bg-green-400 rounded-full border-3 border-navy-900" />
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center relative" 
+                  style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)" }}>
+                  <svg width="24" height="24" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="miniRobotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#667eea"/>
+                        <stop offset="100%" stopColor="#764ba2"/>
+                      </linearGradient>
+                    </defs>
+                    <rect x="8" y="4" width="40" height="40" rx="12" fill="url(#miniRobotGradient)"/>
+                    <g transform="translate(28, 32)">
+                      <ellipse cx="-7" cy="0" rx="5" ry="6" fill="#1a1a2e"/>
+                      <ellipse cx="-7" cy="-1" rx="3" ry="4" fill="#a855f7">
+                        <animate attributeName="ry" values="4;1;4" dur="4s" repeatCount="indefinite"/>
+                      </ellipse>
+                      <ellipse cx="7" cy="0" rx="5" ry="6" fill="#1a1a2e"/>
+                      <ellipse cx="7" cy="-1" rx="3" ry="4" fill="#a855f7">
+                        <animate attributeName="ry" values="4;1;4" dur="4s" repeatCount="indefinite" begin="0.2s"/>
+                      </ellipse>
+                    </g>
+                  </svg>
+                  <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
                 </div>
-                <div>
-                  <p className="text-white font-semibold text-base">FlyBot</p>
-                  <p className="text-white text-sm">Fly High Consultancy • Online</p>
+                <div className="min-w-0">
+                  <p className="text-white font-semibold text-sm truncate">FlyBot</p>
+                  <p className="text-purple-100 text-xs truncate">Fly High Consultancy • Online</p>
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
@@ -461,14 +316,14 @@ const Chatbot = () => {
                   className="w-8 h-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                   aria-label={isMaximized ? "Minimize" : "Maximize"}
                 >
-                  {isMaximized ? <FiMinimize2 size={18} /> : <FiMaximize2 size={18} />}
+                  {isMaximized ? <FiMinimize2 size={16} /> : <FiMaximize2 size={16} />}
                 </button>
                 <button
                   onClick={toggleChat}
                   className="w-8 h-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
                   aria-label="Close chat"
                 >
-                  <FiX size={18} />
+                  <FiX size={16} />
                 </button>
               </div>
             </div>
@@ -476,14 +331,12 @@ const Chatbot = () => {
             {/* Messages Area */}
             <div 
               ref={messagesContainerRef}
-              className="flex-1 p-3 space-y-3" 
+              className="flex-1 overflow-y-auto p-4 space-y-4" 
               style={{ 
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 Q25 30 50 50 Q75 70 90 50' stroke='%230ea5e9' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E")`,
-                backgroundSize: "200px",
                 overscrollBehavior: 'contain',
                 overflowY: showScrollbar ? 'auto' : 'hidden',
                 scrollbarWidth: 'thin',
-                scrollbarColor: '#0ea5e9 transparent'
+                scrollbarColor: '#a855f7 transparent'
               }}
             >
               <AnimatePresence mode="popLayout">
@@ -496,30 +349,31 @@ const Chatbot = () => {
                     transition={{ delay: idx * 0.05 }}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`max-w-[85%] px-3 py-2 rounded-2xl shadow-sm ${
+                    <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
                       msg.role === "user"
                         ? "rounded-br-md"
                         : "rounded-bl-md"
                     }`} 
                       style={{
                         background: msg.role === "user" 
-                          ? "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
-                          : "#f1f5f9",
-                        color: msg.role === "user" ? "white" : "#1e293b",
+                          ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                          : "#f3f4f6",
+                        color: msg.role === "user" ? "white" : "#1f2937",
                         boxShadow: msg.role === "user" 
-                          ? "0 4px 15px rgba(14, 165, 233, 0.3)" 
+                          ? "0 4px 15px rgba(102, 126, 234, 0.3)" 
                           : "0 2px 8px rgba(15, 23, 42, 0.08)"
                       }}
                     >
                       <div className="flex items-start gap-2">
                         {msg.role === "assistant" && (
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                            style={{ background: "linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%)" }}>
-                            <FiMessageSquare size={10} className="text-white" />
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                            style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
+                            <FiMessageSquare size={12} className="text-white" />
                           </div>
                         )}
-                        <div className="prose prose-sm max-w-none">
+                        <div>
                           <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.content}</p>
+                          <p className="text-xs mt-1 opacity-60 text-right">{formatTime(msg.timestamp)}</p>
                         </div>
                       </div>
                     </div>
@@ -541,23 +395,44 @@ const Chatbot = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 rounded-2xl rounded-bl-md shadow-sm">
+                  <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 rounded-2xl rounded-bl-md shadow-sm">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%)" }}>
+                      style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
                       <FiMessageSquare size={12} className="text-white" />
                     </div>
                     <div className="flex gap-1">
-                      <motion.div className="w-2 h-2 rounded-full bg-sky-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
-                      <motion.div className="w-2 h-2 rounded-full bg-sky-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }} />
-                      <motion.div className="w-2 h-2 rounded-full bg-sky-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }} />
+                      <motion.div className="w-2 h-2 rounded-full bg-purple-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
+                      <motion.div className="w-2 h-2 rounded-full bg-purple-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }} />
+                      <motion.div className="w-2 h-2 rounded-full bg-purple-400" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }} />
                     </div>
                   </div>
                 </motion.div>
               )}
             </div>
 
+            {/* Quick Reply Buttons - Only show on first message */}
+            {messages.length === 1 && !isLoading && (
+              <div className="px-4 py-3 border-t border-purple-100 bg-white/50">
+                <p className="text-xs text-purple-600 px-2 mb-2 font-medium">Quick questions:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickReplies.map((q, i) => (
+                    <motion.button
+                      key={i}
+                      onClick={() => handleQuickReply(q.text)}
+                      className="px-3 py-1.5 text-xs rounded-full text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all whitespace-nowrap flex items-center gap-1"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <q.icon size={12} />
+                      {q.text}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Input Area */}
-            <div className="p-3 border-t border-sky-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
+            <div className="p-3 border-t border-purple-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
               <div className="flex items-end gap-2">
                 <div className="flex-1 relative">
                   <textarea
@@ -566,20 +441,21 @@ const Chatbot = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask about visas, PTE, interviews..."
                     rows={1}
+                    maxRows={4}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 pr-10 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400/30 focus:border-sky-400 resize-none transition-all"
+                    className="w-full px-4 py-2.5 pr-12 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 resize-none transition-all"
                     style={{ 
-                      minHeight: "40px",
-                      maxHeight: "120px",
+                      minHeight: "44px",
+                      maxHeight: "140px",
                       fontFamily: "inherit"
                     }}
                   />
                   <button
                     onClick={clearChat}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg text-slate-400 hover:text-sky-500 hover:bg-sky-50 transition-colors flex items-center justify-center"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-purple-500 hover:bg-purple-50 transition-colors flex items-center justify-center"
                     aria-label="Clear chat"
                   >
-                    <FiRefreshCw size={14} />
+                    <FiRefreshCw size={16} />
                   </button>
                 </div>
                 <motion.button
@@ -590,10 +466,10 @@ const Chatbot = () => {
                   className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
                   style={{
                     background: input.trim() && !isLoading
-                      ? "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
+                      ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                       : "linear-gradient(135deg, #94a3b8 0%, #64748b 100%)",
                     boxShadow: input.trim() && !isLoading 
-                      ? "0 4px 15px rgba(14, 165, 233, 0.4)" 
+                      ? "0 4px 15px rgba(102, 126, 234, 0.4)" 
                       : "none"
                   }}
                   aria-label="Send message"
