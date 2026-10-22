@@ -2,18 +2,19 @@ import { motion } from "framer-motion";
 import { FiPhone } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
 
-// Instagram logo using original image - zoomed and centered for perfect circular fit
+// Instagram logo using original image - img tag with object-fit for perfect centering
 const InstagramIcon = () => (
-  <div 
-    className="w-6 h-6 rounded-full"
+  <img 
+    src="/instagram-logo.jpeg" 
+    alt="Instagram" 
     style={{ 
-      backgroundImage: "url('/instagram-logo.jpeg')",
-      backgroundSize: "140%",
-      backgroundPosition: "center 30%",
-      backgroundRepeat: "no-repeat",
+      width: "24px", 
+      height: "24px", 
+      objectFit: "cover",
       borderRadius: "50%",
-      width: "22px",
-      height: "22px"
+      // Slight zoom to crop whitespace, center the logo
+      transform: "scale(1.15)",
+      transformOrigin: "center 45%"
     }}
   />
 );
