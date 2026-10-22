@@ -8,7 +8,7 @@ const InstagramIcon = () => (
     src="/instagram-logo.jpeg" 
     alt="Instagram" 
     className="object-cover"
-    style={{ width: "22px", height: "22px" }}
+    style={{ width: "22px", height: "22px", mixBlendMode: "multiply" }}
   />
 );
 
