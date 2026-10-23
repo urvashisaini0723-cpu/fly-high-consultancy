@@ -1,20 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FiSend, 
-  FiX, 
-  FiMaximize2, 
-  FiMinimize2, 
-  FiRefreshCw, 
-  FiUser, 
-  FiMessageSquare, 
-  FiCpu,
+import {
+  FiSend,
+  FiX,
+  FiMaximize2,
+  FiMinimize2,
+  FiRefreshCw,
+  FiUser,
+  FiMessageSquare,
   FiHelpCircle,
   FiInfo,
-  FiMail,
-  FiPhone,
-  FiClock
+  FiMail
 } from "react-icons/fi";
+import RobotCanvas from "./robot/RobotCanvas";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,13 +21,15 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([
     { 
       role: "assistant", 
-      content: "Hi! I'm FlyBot — your Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep, tourist visas, or anything about studying abroad.",
+      content: "Hi! I'm FlyBot, the Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep or tourist visas.",
       timestamp: new Date()
     }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -138,7 +138,7 @@ const Chatbot = () => {
   // Mobile styles
   const mobileStyles = {
     width: isMobile ? "100vw" : isMaximized ? "500px" : "380px",
-    height: isMobile ? "100vh" : isMaximized ? "650px" : "520px",
+    height: isMobile ? "100dvh" : isMaximized ? "680px" : "560px",
     maxWidth: isMobile ? "100vw" : "90vw",
     maxHeight: isMobile ? "100vh" : "85vh",
     borderRadius: isMobile ? "0" : "1.5rem",
@@ -148,112 +148,86 @@ const Chatbot = () => {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <motion.button
-        className={`fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 group ${
-          isOpen ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
+      {/* Floating 3D Robot Launcher */}
+      <div
+        className={`group fixed bottom-4 right-3 z-[60] flex flex-col items-center transition-all duration-300 ${
+          isOpen
+            ? "pointer-events-none translate-y-4 scale-90 opacity-0"
+            : "pointer-events-auto translate-y-0 scale-100 opacity-100"
         }`}
-        onClick={toggleChat}
-        aria-label="Open FlyBot - Chat with FlyBot"
-        whileHover={{ scale: 1.1, rotate: 3 }}
-        whileTap={{ scale: 0.9 }}
-        animate={{ 
-          y: [0, -8, 0],
-          rotate: [0, 2, -2, 0]
-        }}
-        transition={{ 
-          y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-          rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-        }}
-        style={{ 
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          boxShadow: "0 16px 64px rgba(102, 126, 234, 0.5), 0 0 0 4px rgba(255,255,255,0.2)"
-        }}
+        style={{ width: 96, height: 104 }}
       >
-        {/* Robot Mascot - Premium SVG */}
-        <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ transform: "translateZ(20px)" }}>
-          <defs>
-            <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#667eea"/>
-              <stop offset="50%" stopColor="#764ba2"/>
-              <stop offset="100%" stopColor="#667eea"/>
-            </linearGradient>
-            <linearGradient id="eyeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#a855f7"/>
-              <stop offset="50%" stopColor="#ec4899"/>
-              <stop offset="100%" stopColor="#a855f7"/>
-            </linearGradient>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          
-          {/* Head */}
-          <rect x="10" y="8" width="36" height="32" rx="14" fill="url(#robotGradient)" filter="url(#glow)"/>
-          
-          {/* Eyes */}
-          <g transform="translate(28, 30)">
-            <ellipse cx="-10" cy="0" rx="7" ry="8" fill="#1a1a2e"/>
-            <ellipse cx="-10" cy="-1" rx="5" ry="6" fill="url(#eyeGlow)">
-              <animate attributeName="ry" values="6;2;6" dur="4s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="10" cy="0" rx="7" ry="8" fill="#1a1a2e"/>
-            <ellipse cx="10" cy="-1" rx="5" ry="6" fill="url(#eyeGlow)">
-              <animate attributeName="ry" values="6;2;6" dur="4s" repeatCount="indefinite" begin="0.2s"/>
-            </ellipse>
-          </g>
-          
-          {/* Antenna */}
-          <g transform="translate(28, 8)">
-            <rect x="-2" y="-14" width="4" height="16" rx="2" fill="#667eea"/>
-            <circle cx="0" cy="-14" r="4" fill="#a855f7">
-              <animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite"/>
-            </circle>
-            <path d="M-8 -14 Q-12 -18 -8 -18" stroke="#a855f7" strokeWidth="2" fill="none" opacity="0.6">
-              <animate attributeName="opacity" values="0;0.6;0" dur="1.5s" repeatCount="indefinite"/>
-            </path>
-          </g>
-          
-          {/* Mouth */}
-          <g transform="translate(28, 62)">
-            <rect x="-10" y="0" width="20" height="4" rx="2" fill="#1a1a2e"/>
-            <g className="eq-bars">
-              <rect x="-7" y="1" width="3" height="4" rx="1" fill="#a855f7">
-                <animate attributeName="height" values="4;10;4;8;6;4" dur="0.4s" repeatCount="indefinite"/>
-                <animate attributeName="y" values="1;-5;1;-3;-1;1" dur="0.4s" repeatCount="indefinite"/>
-              </rect>
-              <rect x="-3" y="1" width="3" height="4" rx="1" fill="#a855f7">
-                <animate attributeName="height" values="4;8;4;10;4" dur="0.4s" repeatCount="indefinite" begin="0.05s"/>
-                <animate attributeName="y" values="1;-3;1;-5;1" dur="0.4s" repeatCount="indefinite" begin="0.05s"/>
-              </rect>
-              <rect x="1" y="1" width="3" height="4" rx="1" fill="#a855f7">
-                <animate attributeName="height" values="4;6;4;8;4" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
-                <animate attributeName="y" values="1;-1;1;-3;1" dur="0.4s" repeatCount="indefinite" begin="0.1s"/>
-              </rect>
-              <rect x="5" y="1" width="3" height="4" rx="1" fill="#a855f7">
-                <animate attributeName="height" values="4;10;4;8;6;4" dur="0.4s" repeatCount="indefinite" begin="0.15s"/>
-                <animate attributeName="y" values="1;-5;1;-3;-1;1" dur="0.4s" repeatCount="indefinite" begin="0.15s"/>
-              </rect>
-            </g>
-          </g>
-        </svg>
-        
-        {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-full border-3 border-purple-400/50 animate-ping" />
-        
-        {/* Online indicator */}
-        <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-3 border-white animate-pulse" />
-        
-        {/* Tooltip */}
-        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 w-max whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium text-white shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100"
-          style={{ background: "#1a1a2e" }}>
+        {/* soft ground glow */}
+        <span
+          className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full"
+          style={{
+            width: 64,
+            height: 12,
+            background: "radial-gradient(closest-side, rgba(139,92,246,0.55), rgba(139,92,246,0))",
+            filter: "blur(2px)",
+          }}
+        />
+
+        <motion.button
+          type="button"
+          onClick={toggleChat}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          aria-label="Open FlyBot chat assistant"
+          aria-expanded={isOpen}
+          className="group relative flex h-full w-full cursor-pointer items-end justify-center rounded-3xl focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400/50"
+          initial={{ opacity: 0, y: 26 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 220, damping: 18, delay: 0.6 }}
+          whileTap={{ scale: 0.93 }}
+        >
+          {/* breathing float */}
+          <motion.span
+            className="relative block h-[96px] w-[92px]"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(to bottom, #000 84%, rgba(0,0,0,0.45) 95%, transparent 100%)",
+              maskImage:
+                "linear-gradient(to bottom, #000 84%, rgba(0,0,0,0.45) 95%, transparent 100%)",
+            }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            {!isOpen && (
+              <RobotCanvas
+                hovered={isHovered}
+                framing="bust"
+                quality={isMobile ? "low" : "medium"}
+                className="h-full w-full [&>canvas]:!pointer-events-none"
+                fallbackClassName="h-full w-full"
+              />
+            )}
+          </motion.span>
+
+          {/* online indicator */}
+          <span
+            className="absolute bottom-[8px] right-[8px] flex h-4 w-4 items-center justify-center"
+            aria-hidden="true"
+          >
+            <span className="absolute inline-flex h-4 w-4 animate-ping rounded-full bg-emerald-400 opacity-60" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400 shadow-md" />
+          </span>
+        </motion.button>
+
+        {/* tooltip */}
+        <div
+          className="pointer-events-none absolute right-[92px] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-semibold text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 sm:opacity-0"
+          style={{
+            background: "linear-gradient(135deg, #6d28d9, #4c1d95)",
+            boxShadow: "0 8px 24px rgba(76,29,149,0.35)",
+          }}
+        >
           Chat with FlyBot
         </div>
-      </motion.button>
+      </div>
 
       {/* Chat Window */}
       <AnimatePresence>
@@ -261,9 +235,9 @@ const Chatbot = () => {
           <motion.div
             ref={chatContainerRef}
             key="chat-window"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 18 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed flex flex-col overflow-hidden rounded-2xl shadow-2xl transition-all duration-300 z-50"
             style={{
@@ -282,28 +256,23 @@ const Chatbot = () => {
                 </svg>
               </div>
               <div className="flex items-center gap-3 relative z-10">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center relative" 
-                  style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)" }}>
-                  <svg width="24" height="24" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="miniRobotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#667eea"/>
-                        <stop offset="100%" stopColor="#764ba2"/>
-                      </linearGradient>
-                    </defs>
-                    <rect x="8" y="4" width="40" height="40" rx="12" fill="url(#miniRobotGradient)"/>
-                    <g transform="translate(28, 32)">
-                      <ellipse cx="-7" cy="0" rx="5" ry="6" fill="#1a1a2e"/>
-                      <ellipse cx="-7" cy="-1" rx="3" ry="4" fill="#a855f7">
-                        <animate attributeName="ry" values="4;1;4" dur="4s" repeatCount="indefinite"/>
-                      </ellipse>
-                      <ellipse cx="7" cy="0" rx="5" ry="6" fill="#1a1a2e"/>
-                      <ellipse cx="7" cy="-1" rx="3" ry="4" fill="#a855f7">
-                        <animate attributeName="ry" values="4;1;4" dur="4s" repeatCount="indefinite" begin="0.2s"/>
-                      </ellipse>
-                    </g>
-                  </svg>
-                  <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
+                <div
+                  className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full"
+                  style={{
+                    background: "radial-gradient(circle at 50% 35%, rgba(196,181,253,0.55), rgba(76,29,149,0.45))",
+                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.35), 0 4px 14px rgba(30,16,70,0.35)",
+                  }}
+                  onMouseEnter={() => setIsAvatarHovered(true)}
+                  onMouseLeave={() => setIsAvatarHovered(false)}
+                >
+                  <RobotCanvas
+                    hovered={isAvatarHovered}
+                    framing="avatar"
+                    quality="low"
+                    className="absolute inset-0 h-full w-full [&>canvas]:!pointer-events-none"
+                    fallbackClassName="h-full w-full scale-[0.95]"
+                  />
+                  <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-white font-semibold text-sm truncate">FlyBot</p>
@@ -311,13 +280,16 @@ const Chatbot = () => {
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
-                <button
-                  onClick={toggleMaximize}
-                  className="w-8 h-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
-                  aria-label={isMaximized ? "Minimize" : "Maximize"}
-                >
-                  {isMaximized ? <FiMinimize2 size={16} /> : <FiMaximize2 size={16} />}
-                </button>
+                {!isMobile && (
+                  <button
+                    type="button"
+                    onClick={toggleMaximize}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label={isMaximized ? "Restore chat size" : "Expand chat"}
+                  >
+                    {isMaximized ? <FiMinimize2 size={16} /> : <FiMaximize2 size={16} />}
+                  </button>
+                )}
                 <button
                   onClick={toggleChat}
                   className="w-8 h-8 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
@@ -331,7 +303,7 @@ const Chatbot = () => {
             {/* Messages Area */}
             <div 
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4" 
+              className="min-h-0 flex-1 overflow-y-auto p-4 space-y-3.5" 
               style={{ 
                 overscrollBehavior: 'contain',
                 overflowY: showScrollbar ? 'auto' : 'hidden',
@@ -412,19 +384,22 @@ const Chatbot = () => {
 
             {/* Quick Reply Buttons - Only show on first message */}
             {messages.length === 1 && !isLoading && (
-              <div className="px-4 py-3 border-t border-purple-100 bg-white/50">
-                <p className="text-xs text-purple-600 px-2 mb-2 font-medium">Quick questions:</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="flex-shrink-0 border-t border-purple-100 px-3 py-2.5" style={{ background: "rgba(250,247,255,0.9)" }}>
+                <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wide text-purple-500">
+                  Quick questions
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
                   {quickReplies.map((q, i) => (
                     <motion.button
                       key={i}
+                      type="button"
                       onClick={() => handleQuickReply(q.text)}
-                      className="px-3 py-1.5 text-xs rounded-full text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all whitespace-nowrap flex items-center gap-1"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-1.5 rounded-xl border border-purple-200/80 bg-white px-2.5 py-2 text-left text-[11px] font-medium leading-tight text-purple-700 shadow-sm transition-colors hover:border-purple-300 hover:bg-purple-50"
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.97 }}
                     >
-                      <q.icon size={12} />
-                      {q.text}
+                      <q.icon size={12} className="flex-shrink-0 text-purple-500" />
+                      <span className="line-clamp-2">{q.text}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -432,7 +407,13 @@ const Chatbot = () => {
             )}
 
             {/* Input Area */}
-            <div className="p-3 border-t border-purple-100 flex-shrink-0" style={{ background: "rgba(255,255,255,0.95)" }}>
+            <div
+              className="flex-shrink-0 border-t border-purple-100 p-3"
+              style={{
+                background: "rgba(255,255,255,0.95)",
+                paddingBottom: isMobile ? "calc(0.75rem + env(safe-area-inset-bottom))" : undefined,
+              }}
+            >
               <div className="flex items-end gap-2">
                 <div className="flex-1 relative">
                   <textarea
@@ -441,7 +422,6 @@ const Chatbot = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask about visas, PTE, interviews..."
                     rows={1}
-                    maxRows={4}
                     disabled={isLoading}
                     className="w-full px-4 py-2.5 pr-12 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 resize-none transition-all"
                     style={{ 
