@@ -44,14 +44,15 @@ const Chatbot = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Scroll the conversation area itself (never the page) to the newest message
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const el = messagesContainerRef.current;
+    if (!el) return undefined;
+    const id = requestAnimationFrame(() => {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [messages, isLoading]);
 
   // Check scrollbar visibility
   useEffect(() => {
@@ -71,33 +72,81 @@ const Chatbot = () => {
     });
   };
 
-  // Send message to backend
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = input.trim();
-    const userMsg = { role: "user", content: userMessage, timestamp: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setInput("");
-    setIsLoading(true);
+  // Ask the backend once (with a hard timeout so it can never hang forever)
+  const requestReply = async (userMessage, history) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
 
     try {
       const response = await fetch("/api/chatbot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          history: messages.slice(-6).map(m => ({ role: m.role, content: m.content }))
-        })
+        body: JSON.stringify({ message: userMessage, history }),
+        signal: controller.signal,
       });
 
-      const data = await response.json();
-      setMessages(prev => [...prev, { role: "assistant", content: data.reply || "Sorry, something went wrong!", timestamp: new Date() }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Oops! Connection issue. Please try again or WhatsApp us at +91-93061-42129 📱", timestamp: new Date() }]);
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+
+      if (response.ok && data && typeof data.reply === "string" && data.reply.trim()) {
+        return data.reply.trim();
+      }
+
+      // server replied with a useful message (rate limit, validation, etc.)
+      if (data && typeof data.reply === "string" && data.reply.trim()) return data.reply.trim();
+      if (data && typeof data.message === "string" && data.message.trim()) return data.message.trim();
+
+      throw new Error(`HTTP ${response.status}`);
     } finally {
-      setIsLoading(false);
+      clearTimeout(timer);
     }
+  };
+
+  // Send message to backend (one silent retry, then a friendly fallback)
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input.trim();
+    const userMsg = { role: "user", content: userMessage, timestamp: new Date() };
+
+    // history is captured before the new message is appended
+    const history = messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .slice(-6)
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setIsLoading(true);
+
+    let reply = null;
+
+    for (let attempt = 1; attempt <= 2 && !reply; attempt += 1) {
+      try {
+        reply = await requestReply(userMessage, history);
+      } catch (error) {
+        if (attempt === 2) {
+          console.error("[FlyBot] request failed:", error?.message || error);
+        } else {
+          await new Promise((r) => setTimeout(r, 700));
+        }
+      }
+    }
+
+    if (!reply) {
+      reply =
+        "I could not reach the office network just now. Please try once more in a few seconds, or call and WhatsApp us directly at +91-93061-42129 - our team replies quickly.";
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: reply, timestamp: new Date() },
+    ]);
+    setIsLoading(false);
   };
 
   const handleKeyDown = (e) => {
