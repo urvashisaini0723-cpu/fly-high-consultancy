@@ -359,6 +359,17 @@ async function tryModel(model, messages) {
 /* ------------------------------------------------------------------ *
  *  POST /api/chatbot/chat
  * ------------------------------------------------------------------ */
+const CONTACT_LINE = "Call or WhatsApp us at +91-93061-42129.";
+
+// The model occasionally drops the phone number even though the prompt asks
+// for it. Every reply must carry it, so enforce it here instead of hoping.
+function ensureContact(reply) {
+  const text = String(reply || "").trim();
+  if (!text) return text;
+  if (text.replace(/\D/g, "").includes("919306142129")) return text;
+  return `${text}\n\n${CONTACT_LINE}`;
+}
+
 router.post("/chat", async (req, res) => {
   const { message, history } = req.body || {};
 
@@ -427,8 +438,9 @@ router.post("/chat", async (req, res) => {
     try {
       const result = await tryModel(model, messages);
       if (result.ok) {
-        if (cacheKey) cacheSet(cacheKey, result.reply);
-        return res.json({ success: true, source: model.id, reply: result.reply });
+        const finalReply = ensureContact(result.reply);
+        if (cacheKey) cacheSet(cacheKey, finalReply);
+        return res.json({ success: true, source: model.id, reply: finalReply });
       }
       if (result.fatal) break; // invalid key - no point trying other models
     } catch (e) {
@@ -442,7 +454,7 @@ router.post("/chat", async (req, res) => {
   return res.json({
     success: true,
     source: "local",
-    reply: localAnswer(message),
+    reply: ensureContact(localAnswer(message)),
   });
 });
 

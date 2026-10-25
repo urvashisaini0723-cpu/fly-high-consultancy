@@ -27,7 +27,9 @@ app.use(
     origin: (origin, cb) => {
       // allow same-origin / curl / mobile webviews (no Origin header)
       if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      cb(new Error("Not allowed by CORS"));
+      const err = new Error("Origin not allowed by CORS");
+      err.status = 403;
+      cb(err);
     },
     credentials: true,
   })
@@ -79,10 +81,24 @@ app.use((_req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// Error handler
+// Error handler - always JSON, never Express's default HTML 500 page
 app.use((err, _req, res, _next) => {
-  console.error(err);
-  res.status(500).json({ success: false, message: "Internal server error" });
+  if (res.headersSent) return;
+
+  const status = Number(err.status || err.statusCode) || 500;
+
+  if (status >= 500) {
+    console.error("[server] request error:", err.message);
+  } else {
+    console.warn("[server] rejected request:", err.message);
+  }
+
+  res.status(status).json({
+    success: false,
+    message: status >= 500 ? "Internal server error" : err.message,
+    reply:
+      "Something went wrong on our side. Please try again in a moment, or call or WhatsApp us at +91-93061-42129.",
+  });
 });
 
 /* ------------------------------------------------------------------ *

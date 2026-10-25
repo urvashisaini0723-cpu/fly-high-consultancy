@@ -186,6 +186,23 @@ const Chatbot = () => {
       ]);
     }
 
+    // If the API is already known to be down, re-check once instead of firing a
+    // request that is guaranteed to fail (keeps the console clean).
+    if (serviceStatus === "offline") {
+      const backOnline = await checkService();
+      if (!backOnline) {
+        setFailedMessage({
+          text,
+          history,
+          reason:
+            "The FlyBot service is offline. Start the backend with npm run dev from the project root, then press Retry.",
+        });
+        setIsLoading(false);
+        inFlightRef.current = false;
+        return;
+      }
+    }
+
     let reply = null;
     let lastError = null;
 

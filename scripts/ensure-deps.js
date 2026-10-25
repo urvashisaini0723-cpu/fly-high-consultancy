@@ -86,11 +86,16 @@ const isPortBusy = (port) =>
   const [busy5000, busy5173] = await Promise.all([isPortBusy(5000), isPortBusy(5173)]);
 
   if (busy5000) {
-    console.warn(
-      `\n${RED}[setup] Port 5000 is already in use.${RESET} A previous backend may still be running.`
+    console.error(
+      `\n${RED}[setup] Port 5000 is already in use - a Fly High backend is already running.${RESET}`
     );
-    console.warn(`${DIM}        lsof -ti:5000 | xargs kill -9${RESET}`);
-    console.warn("[setup] If that old server is healthy you can ignore this.\n");
+    console.error(
+      `[setup] Starting a second copy would leave you with a frontend that cannot reach its API.`
+    );
+    console.error(`[setup] The existing site is probably already open at http://localhost:5173`);
+    console.error(`${DIM}        Stop it first:  lsof -ti:5000,5173,5174 | xargs kill -9${RESET}`);
+    console.error(`[setup] Then run "npm run dev" again.\n`);
+    process.exit(1);
   }
   if (busy5173) {
     console.warn(
