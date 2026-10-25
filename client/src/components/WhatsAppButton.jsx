@@ -1,30 +1,14 @@
 import { motion } from "framer-motion";
 import { FiPhone } from "react-icons/fi";
-import { FaWhatsapp, FaFacebookF } from "react-icons/fa";
-
-// Instagram logo using original image - img tag with object-fit for perfect centering
-const InstagramIcon = () => (
-  <img 
-    src="/instagram-logo.jpeg" 
-    alt="Instagram" 
-    style={{ 
-      width: "24px", 
-      height: "24px", 
-      objectFit: "cover",
-      borderRadius: "50%",
-      // Slight zoom to crop whitespace, center the logo
-      transform: "scale(1.15)",
-      transformOrigin: "center 45%"
-    }}
-  />
-);
+import { FaWhatsapp, FaFacebookF, FaInstagram } from "react-icons/fa";
 
 const items = [
   {
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
-    icon: <InstagramIcon />,
-    bg: "bg-gradient-to-br from-pink-500 via-orange-500 to-yellow-500",
+    icon: <FaInstagram size={22} />,
+    // official Instagram gradient - pure circle, no image/white ring
+    bg: "bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045]",
   },
   {
     href: "https://www.facebook.com/p/Flyhigh-Consultancy-Pehowa-61571970445323/",
