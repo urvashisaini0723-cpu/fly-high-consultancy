@@ -106,6 +106,33 @@ const server = app.listen(PORT, () => {
     );
   } else {
     console.log("[server] Groq API key detected - FlyBot AI is enabled.");
+
+    // Non-blocking reachability probe: tells you in the terminal whether the AI
+    // provider is usable. It never prints the key and never delays startup.
+    const fetch = require("node-fetch");
+    fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      timeout: 8000,
+    })
+      .then((response) => {
+        if (response.ok) {
+          console.log("[server] AI provider reachable - live answers enabled.");
+        } else if (response.status === 401 || response.status === 403) {
+          console.error(
+            "[server] AI provider rejected the key (401/403) - please check GROQ_API_KEY in server/.env."
+          );
+        } else {
+          console.warn(
+            `[server] AI provider returned HTTP ${response.status} - local answers will be used.`
+          );
+        }
+      })
+      .catch((error) => {
+        const reason = error.code || error.type || error.message;
+        console.warn(
+          `[server] AI provider unreachable (${reason}) - local answers will be used until it recovers.`
+        );
+      });
   }
 });
 

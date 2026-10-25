@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSend,
@@ -30,9 +30,14 @@ const Chatbot = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
+  // "checking" | "online" | "offline" - reflects the real backend, not a guess
+  const [serviceStatus, setServiceStatus] = useState("checking");
+  // holds the last message that could not be delivered, so Retry can resend it
+  const [failedMessage, setFailedMessage] = useState(null);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const inFlightRef = useRef(false);
 
   // Check mobile on mount and resize
   useEffect(() => {
@@ -52,7 +57,7 @@ const Chatbot = () => {
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     });
     return () => cancelAnimationFrame(id);
-  }, [messages, isLoading]);
+  }, [messages, isLoading, failedMessage]);
 
   // Check scrollbar visibility
   useEffect(() => {
@@ -72,18 +77,64 @@ const Chatbot = () => {
     });
   };
 
-  // Ask the backend once (with a hard timeout so it can never hang forever)
+  // Ping the real backend so the UI shows an honest status instead of guessing
+  const checkService = useCallback(async () => {
+    setServiceStatus("checking");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 6000);
+
+    try {
+      // /api/health is instant and only proves the API server itself is up.
+      // (The chat still answers from the local knowledge base if the AI provider is down.)
+      const response = await fetch("/api/health", {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (!data || data.success !== true) throw new Error("bad payload");
+      setServiceStatus("online");
+      return true;
+    } catch {
+      setServiceStatus("offline");
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkService();
+  }, [checkService]);
+
+  // Ask the backend once. Errors are tagged so the UI can decide what to do:
+  // - friendly: the server already explained the problem (rate limit, validation)
+  // - backendDown/network/timeout: infrastructure problem, safe to retry
   const requestReply = async (userMessage, history) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 45000);
 
     try {
-      const response = await fetch("/api/chatbot/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage, history }),
-        signal: controller.signal,
-      });
+      let response;
+      try {
+        response = await fetch("/api/chatbot/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage, history }),
+          signal: controller.signal,
+        });
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          const timedOut = new Error("The assistant took too long to respond.");
+          timedOut.timeout = true;
+          timedOut.retryable = true;
+          throw timedOut;
+        }
+        const offline = new Error("Could not reach the FlyBot server.");
+        offline.network = true;
+        offline.retryable = true;
+        throw offline;
+      }
 
       let data = null;
       try {
@@ -92,26 +143,95 @@ const Chatbot = () => {
         data = null;
       }
 
-      if (response.ok && data && typeof data.reply === "string" && data.reply.trim()) {
-        return data.reply.trim();
+      const reply = data && typeof data.reply === "string" ? data.reply.trim() : "";
+
+      if (response.ok && reply) return reply;
+
+      if (data && data.backendDown) {
+        const down = new Error("The FlyBot server is not running.");
+        down.backendDown = true;
+        down.retryable = true;
+        throw down;
       }
 
-      // server replied with a useful message (rate limit, validation, etc.)
-      if (data && typeof data.reply === "string" && data.reply.trim()) return data.reply.trim();
-      if (data && typeof data.message === "string" && data.message.trim()) return data.message.trim();
+      // server replied with a useful, user-facing message (rate limit, validation)
+      if (reply) {
+        const friendly = new Error(reply);
+        friendly.friendly = reply;
+        friendly.retryable = false;
+        throw friendly;
+      }
 
-      throw new Error(`HTTP ${response.status}`);
+      const badResponse = new Error(
+        `The server replied with an unexpected response (HTTP ${response.status}).`
+      );
+      badResponse.retryable = response.status >= 500;
+      throw badResponse;
     } finally {
       clearTimeout(timer);
     }
   };
 
-  // Send message to backend (one silent retry, then a friendly fallback)
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  // One request at a time: never append a fake assistant reply when the call failed.
+  const deliver = async (text, history, appendUser) => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setIsLoading(true);
+    setFailedMessage(null);
 
-    const userMessage = input.trim();
-    const userMsg = { role: "user", content: userMessage, timestamp: new Date() };
+    if (appendUser) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: text, timestamp: new Date() },
+      ]);
+    }
+
+    let reply = null;
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= 2 && !reply; attempt += 1) {
+      try {
+        reply = await requestReply(text, history);
+      } catch (error) {
+        lastError = error;
+        if (!error?.retryable || attempt === 2) break;
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      }
+    }
+
+    if (reply) {
+      setServiceStatus("online");
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: reply, timestamp: new Date() },
+      ]);
+    } else {
+      if (lastError?.backendDown || lastError?.network || lastError?.timeout) {
+        setServiceStatus("offline");
+      }
+
+      let reason = lastError?.friendly;
+      if (!reason) {
+        if (lastError?.timeout) {
+          reason = "The server took too long to respond. Please try again.";
+        } else if (lastError?.backendDown || lastError?.network) {
+          reason =
+            "Could not reach the FlyBot server. Make sure the backend is running, then press Retry.";
+        } else {
+          reason = lastError?.message || "Something went wrong. Please try again.";
+        }
+      }
+
+      setFailedMessage({ text, history, reason });
+    }
+
+    setIsLoading(false);
+    inFlightRef.current = false;
+  };
+
+  const sendMessage = (overrideText) => {
+    const text = (typeof overrideText === "string" ? overrideText : input).trim();
+    if (!text || isLoading || inFlightRef.current) return;
 
     // history is captured before the new message is appended
     const history = messages
@@ -119,34 +239,14 @@ const Chatbot = () => {
       .slice(-6)
       .map((m) => ({ role: m.role, content: m.content }));
 
-    setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setIsLoading(true);
+    deliver(text, history, true);
+  };
 
-    let reply = null;
-
-    for (let attempt = 1; attempt <= 2 && !reply; attempt += 1) {
-      try {
-        reply = await requestReply(userMessage, history);
-      } catch (error) {
-        if (attempt === 2) {
-          console.error("[FlyBot] request failed:", error?.message || error);
-        } else {
-          await new Promise((r) => setTimeout(r, 700));
-        }
-      }
-    }
-
-    if (!reply) {
-      reply =
-        "I could not reach the office network just now. Please try once more in a few seconds, or call and WhatsApp us directly at +91-93061-42129 - our team replies quickly.";
-    }
-
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: reply, timestamp: new Date() },
-    ]);
-    setIsLoading(false);
+  // Resend the exact message that failed - without duplicating the user bubble.
+  const retryFailed = () => {
+    if (!failedMessage || isLoading || inFlightRef.current) return;
+    deliver(failedMessage.text, failedMessage.history, false);
   };
 
   const handleKeyDown = (e) => {
@@ -160,6 +260,8 @@ const Chatbot = () => {
     setMessages([
       { role: "assistant", content: "Chat cleared! How can I help you with Fly High Consultancy services today? ✈️", timestamp: new Date() }
     ]);
+    setFailedMessage(null);
+    setInput("");
   };
 
   const toggleMaximize = () => {
@@ -167,8 +269,13 @@ const Chatbot = () => {
   };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) setIsMaximized(false);
+    const nextOpen = !isOpen;
+    setIsOpen(nextOpen);
+    if (nextOpen) {
+      setIsMaximized(false);
+      // backend may have been restarted since the last check
+      checkService();
+    }
   };
 
   // Quick reply questions
@@ -180,8 +287,9 @@ const Chatbot = () => {
   ];
 
   const handleQuickReply = (text) => {
-    setInput(text);
-    sendMessage();
+    // pass the text directly - state updates are async, so the old
+    // setInput + sendMessage() pair always sent an empty message
+    sendMessage(text);
   };
 
   // Mobile styles
@@ -256,13 +364,30 @@ const Chatbot = () => {
             )}
           </motion.span>
 
-          {/* online indicator */}
+          {/* online indicator - reflects the real backend status */}
           <span
             className="absolute bottom-[8px] right-[8px] flex h-4 w-4 items-center justify-center"
             aria-hidden="true"
+            title={
+              serviceStatus === "online"
+                ? "FlyBot is online"
+                : serviceStatus === "checking"
+                ? "Checking connection"
+                : "FlyBot offline"
+            }
           >
-            <span className="absolute inline-flex h-4 w-4 animate-ping rounded-full bg-emerald-400 opacity-60" />
-            <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400 shadow-md" />
+            {serviceStatus === "online" ? (
+              <>
+                <span className="absolute inline-flex h-4 w-4 animate-ping rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-400 shadow-md" />
+              </>
+            ) : (
+              <span
+                className={`relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white shadow-md ${
+                  serviceStatus === "checking" ? "bg-amber-400" : "bg-rose-500"
+                }`}
+              />
+            )}
           </span>
         </motion.button>
 
@@ -321,11 +446,26 @@ const Chatbot = () => {
                     className="absolute inset-0 h-full w-full [&>canvas]:!pointer-events-none"
                     fallbackClassName="h-full w-full scale-[0.95]"
                   />
-                  <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" />
+                  <span
+                    className={`absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${
+                      serviceStatus === "online"
+                        ? "bg-emerald-400"
+                        : serviceStatus === "checking"
+                        ? "bg-amber-400"
+                        : "bg-rose-500"
+                    }`}
+                  />
                 </div>
                 <div className="min-w-0">
                   <p className="text-white font-semibold text-sm truncate">FlyBot</p>
-                  <p className="text-purple-100 text-xs truncate">Fly High Consultancy • Online</p>
+                  <p className="text-purple-100 text-xs truncate">
+                    Fly High Consultancy •{" "}
+                    {serviceStatus === "online"
+                      ? "Online"
+                      : serviceStatus === "checking"
+                      ? "Connecting…"
+                      : "Offline"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
@@ -429,6 +569,30 @@ const Chatbot = () => {
                   </div>
                 </motion.div>
               )}
+
+              {/* Delivery failure - real error state with a working Retry */}
+              {failedMessage && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
+                >
+                  <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-rose-200 bg-rose-50 px-3.5 py-2.5 shadow-sm">
+                    <p className="text-[12px] font-semibold text-rose-700">Message not sent</p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-rose-600">
+                      {failedMessage.reason}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={retryFailed}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-rose-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+                    >
+                      <FiRefreshCw size={12} />
+                      Retry
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Quick Reply Buttons - Only show on first message */}
@@ -452,6 +616,24 @@ const Chatbot = () => {
                     </motion.button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Backend offline banner - only shown when the status check really failed */}
+            {serviceStatus === "offline" && (
+              <div className="flex flex-shrink-0 items-center justify-between gap-2 border-t border-amber-200 bg-amber-50 px-3 py-2">
+                <p className="text-[11px] leading-snug text-amber-800">
+                  FlyBot service is offline. Start the backend with{" "}
+                  <span className="font-semibold">npm run dev</span> from the project root.
+                </p>
+                <button
+                  type="button"
+                  onClick={checkService}
+                  className="inline-flex flex-shrink-0 items-center gap-1 rounded-lg bg-amber-500 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                >
+                  <FiRefreshCw size={12} />
+                  Retry
+                </button>
               </div>
             )}
 
