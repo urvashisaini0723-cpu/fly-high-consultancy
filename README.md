@@ -9,7 +9,7 @@ fly-high-consultancy/
 └── server/   (Node.js + Express backend)
 ```
 
-## Setup (single command for both)
+## Run the site (one command)
 ```bash
 # from project root
 npm install            # installs concurrently
@@ -20,20 +20,22 @@ npm run dev            # runs backend + frontend together
 Client: http://localhost:5173
 Server: http://localhost:5000
 
-### Backend only
+### Keep it running after the terminal is closed
+```bash
+npm run bg       # starts detached, keeps running after the terminal is closed
+npm run bg:stop  # stops the background site
+```
+Logs: `dev-server.log`
+
+### Backend only (development)
 ```bash
 cd server
-cp .env.example .env
-npm install
 npm run dev
 ```
 
-### Frontend only
-```bash
-cd client
-npm install
-npm run dev
-```
+The client cannot run on its own: `npm run dev` inside `client/` checks for the
+API on port 5000 and stops with an explanation, because a frontend without its
+API produces 500 errors in the browser console.
 
 The Vite dev server proxies `/api` to the backend.
 

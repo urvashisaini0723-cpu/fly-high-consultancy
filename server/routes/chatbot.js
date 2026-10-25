@@ -361,6 +361,9 @@ async function tryModel(model, messages) {
  * ------------------------------------------------------------------ */
 const CONTACT_LINE = "Call or WhatsApp us at +91-93061-42129.";
 
+const GREETING_RE =
+  /^(hi+|hlo+|hello+|hey+|hii+|namaste|namaskar|sat sri akal|good\s+(morning|afternoon|evening))[\s!.,?]*$/i;
+
 // The model occasionally drops the phone number even though the prompt asks
 // for it. Every reply must carry it, so enforce it here instead of hoping.
 function ensureContact(reply) {
@@ -384,6 +387,16 @@ router.post("/chat", async (req, res) => {
     return res.status(400).json({
       success: false,
       reply: "Your message is a bit long. Please ask a shorter question or call us at +91-93061-42129.",
+    });
+  }
+
+  // Instant answer for greetings - no AI call needed, so the first message
+  // gets the key details back immediately.
+  if (GREETING_RE.test(message.trim())) {
+    return res.json({
+      success: true,
+      source: "instant",
+      reply: `Hello! Welcome to Fly High Consultancy, Pehowa.\n\n- Study visas: Canada, Australia, UK, USA, New Zealand and Europe\n- Tourist, spouse and dependent visas\n- PTE coaching and visa interview preparation\n- Free profile assessment and document guidance\n\nWhat would you like to know?\n\n${CONTACT_LINE}`,
     });
   }
 

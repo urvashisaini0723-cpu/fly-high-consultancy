@@ -19,9 +19,10 @@ const Chatbot = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [messages, setMessages] = useState([
-    { 
-      role: "assistant", 
-      content: "Hi! I'm FlyBot, the Fly High Consultancy assistant. Ask me about study visas, PTE coaching, interview prep or tourist visas.",
+    {
+      role: "assistant",
+      content:
+        "Hi! I'm FlyBot from Fly High Consultancy, Pehowa.\n\nStudy visas (Canada, Australia, UK, USA, New Zealand, Europe), tourist and spouse visas, PTE coaching and interview preparation — all under one roof.\n\nCall or WhatsApp +91-93061-42129 for a free profile assessment. What would you like to know?",
       timestamp: new Date()
     }
   ]);
@@ -38,6 +39,7 @@ const Chatbot = () => {
   const chatContainerRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const inFlightRef = useRef(false);
+  const autoRetriedRef = useRef(null);
 
   // Check mobile on mount and resize
   useEffect(() => {
@@ -77,9 +79,10 @@ const Chatbot = () => {
     });
   };
 
-  // Ping the real backend so the UI shows an honest status instead of guessing
-  const checkService = useCallback(async () => {
-    setServiceStatus("checking");
+  // Ping the real backend so the UI shows an honest status instead of guessing.
+  // silent = keep the current badge while re-checking (no "Connecting..." flicker).
+  const checkService = useCallback(async (silent = false) => {
+    if (!silent) setServiceStatus("checking");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
 
@@ -105,6 +108,20 @@ const Chatbot = () => {
 
   useEffect(() => {
     checkService();
+  }, [checkService]);
+
+  // Coming back to the tab must not leave a stale "Offline" badge:
+  // re-check quietly whenever the page becomes visible again.
+  useEffect(() => {
+    const recheck = () => {
+      if (document.visibilityState === "visible") checkService(true);
+    };
+    document.addEventListener("visibilitychange", recheck);
+    window.addEventListener("focus", recheck);
+    return () => {
+      document.removeEventListener("visibilitychange", recheck);
+      window.removeEventListener("focus", recheck);
+    };
   }, [checkService]);
 
   // Ask the backend once. Errors are tagged so the UI can decide what to do:
@@ -250,6 +267,7 @@ const Chatbot = () => {
     const text = (typeof overrideText === "string" ? overrideText : input).trim();
     if (!text || isLoading || inFlightRef.current) return;
 
+    autoRetriedRef.current = null;
     // history is captured before the new message is appended
     const history = messages
       .filter((m) => m.role === "user" || m.role === "assistant")
@@ -265,6 +283,20 @@ const Chatbot = () => {
     if (!failedMessage || isLoading || inFlightRef.current) return;
     deliver(failedMessage.text, failedMessage.history, false);
   };
+
+  // If the backend comes back while a message is waiting, resend it once
+  // automatically so the visitor never has to press Retry.
+  useEffect(() => {
+    if (
+      serviceStatus === "online" &&
+      failedMessage &&
+      !isLoading &&
+      autoRetriedRef.current !== failedMessage.text
+    ) {
+      autoRetriedRef.current = failedMessage.text;
+      deliver(failedMessage.text, failedMessage.history, false);
+    }
+  }, [serviceStatus, failedMessage, isLoading]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
