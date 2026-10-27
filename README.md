@@ -41,22 +41,40 @@ The Vite dev server proxies `/api` to the backend.
 
 ## Environment variables (server/.env)
 - PORT
-- CLIENT_ORIGIN
-- SMTP_HOST
-- SMTP_PORT
-- SMTP_SECURE
-- SMTP_USER
-- SMTP_PASS
+- CLIENT_ORIGIN (comma separated, supports wildcards such as `https://*.vercel.app`)
+- GROQ_API_KEY
+- BREVO_API_KEY
+- MAIL_FROM
 - MAIL_TO
 
 ## API
 - POST /api/contact { name, phone, email, interest, message }
+- POST /api/chatbot/chat { message, history }
 - GET /api/health
+- GET /api/chatbot/status
 
-## Deploy
-- Build frontend: `cd client && npm run build` → serve `client/dist` (static host or behind Express).
-- Host backend on any Node.js host; set .env and CLIENT_ORIGIN to your domain.
-- Ensure SMTP credentials are configured in production.
+## Live deployment
+- Frontend (Vercel): https://fly-high-consultancy.vercel.app
+- Backend (Render): https://fly-high-api.onrender.com
+- API health: https://fly-high-api.onrender.com/api/health
+
+### Frontend - Vercel
+- Project root directory: `client/` (framework: Vite)
+- Build: `npm run build`, output: `dist`
+- Environment variable: `VITE_API_BASE_URL=https://fly-high-api.onrender.com`
+- `client/vercel.json` adds SPA rewrites so deep links and F5 work.
+- Pushes to `main` deploy automatically. Vercel only allows deployments whose
+  commit author is a team member, so this repo's local git identity is:
+  `git config user.email urvashisaini0723@gmail.com`
+
+### Backend - Render
+- Service: `fly-high-api`, root directory `server/`
+- Build: `npm install`, start: `npm start`, health check: `/api/health`
+- Environment variables: `GROQ_API_KEY`, `BREVO_API_KEY`, `MAIL_FROM`,
+  `MAIL_TO`, `CLIENT_ORIGIN` (set to `https://*.vercel.app`)
+- Free plan sleeps after ~15 minutes idle. The first request can take
+  30-60 seconds; the chat UI shows a "Waking up the assistant" hint.
+  For an always-fast backend, use a paid Render instance or an uptime pinger.
 
 ## Disclaimer
 General guidance only. Visa decisions are made by the relevant authorities.
