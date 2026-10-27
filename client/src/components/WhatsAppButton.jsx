@@ -6,33 +6,33 @@ const items = [
   {
     href: "https://www.instagram.com/fly.highconsultancypehowa/",
     label: "Instagram",
-    icon: <FaInstagram size={22} />,
+    icon: <FaInstagram size={18} />,
     // official Instagram gradient - pure circle, no image/white ring
     bg: "bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#fcb045]",
   },
   {
     href: "https://www.facebook.com/p/Flyhigh-Consultancy-Pehowa-61571970445323/",
     label: "Facebook",
-    icon: <FaFacebookF size={22} />,
+    icon: <FaFacebookF size={18} />,
     bg: "bg-blue-600",
   },
   {
     href: "https://wa.me/919306142129?text=Hello%20Dear%2C%20how%20can%20I%20help%20you%20with%20FlyHigh%3F",
     label: "WhatsApp",
-    icon: <FaWhatsapp size={22} />,
+    icon: <FaWhatsapp size={18} />,
     bg: "bg-[#25D366]",
   },
   {
     href: "tel:+919306142129",
     label: "Call",
-    icon: <FiPhone size={22} />,
+    icon: <FiPhone size={18} />,
     bg: "bg-orange",
   },
 ];
 
 const WhatsAppButton = () => {
   return (
-    <div className="fixed left-5 bottom-5 z-40 flex flex-col gap-3 items-start">
+    <div className="fixed left-1 bottom-5 z-40 flex flex-col gap-3 items-start">
       {items.map((it, i) => (
         <motion.a
           key={it.label}
@@ -40,7 +40,7 @@ const WhatsAppButton = () => {
           target={it.href.startsWith("tel") ? "_self" : "_blank"}
           rel="noopener noreferrer"
           aria-label={it.label}
-          className={`w-11 h-11 rounded-full ${it.bg} text-white flex items-center justify-center shadow-xl`}
+          className={`w-9 h-9 rounded-full ${it.bg} text-white flex items-center justify-center shadow-xl`}
           initial={{ scale: 0, opacity: 0, y: 30 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ delay: i * 0.08, type: "spring", stiffness: 300, damping: 25 }}
