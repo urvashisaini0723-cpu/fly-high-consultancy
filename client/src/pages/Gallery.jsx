@@ -3,7 +3,7 @@ import SectionHeading from "../components/SectionHeading";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
 
-const galleryImages = Array.from({ length: 20 }, (_, i) => `/gallery/img${i + 1}.jpg`);
+const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/img${i + 1}.jpg`);
 
 const Gallery = () => {
   const [activeIdx, setActiveIdx] = useState(null);
