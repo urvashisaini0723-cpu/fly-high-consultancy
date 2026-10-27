@@ -22,11 +22,24 @@ const allowedOrigins = (
   .map((o) => o.trim())
   .filter(Boolean);
 
+// Exact origins plus wildcard entries such as https://*.vercel.app
+const originAllowed = (origin) =>
+  allowedOrigins.some((allowed) => {
+    if (allowed === "*") return true;
+    if (!allowed.includes("*")) return allowed === origin;
+    const pattern = allowed.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+    return new RegExp(`^${pattern}$`).test(origin);
+  });
+
+// Render terminates TLS in front of the app - trust one proxy hop so
+// rate limiting sees the real visitor IP instead of the proxy IP.
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: (origin, cb) => {
       // allow same-origin / curl / mobile webviews (no Origin header)
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      if (!origin || originAllowed(origin)) return cb(null, true);
       const err = new Error("Origin not allowed by CORS");
       err.status = 403;
       cb(err);
@@ -113,7 +126,7 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Fly High Consultancy server running on port ${PORT}`);
 
   if (!process.env.GROQ_API_KEY) {

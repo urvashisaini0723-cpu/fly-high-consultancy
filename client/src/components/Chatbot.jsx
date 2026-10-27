@@ -13,6 +13,7 @@ import {
   FiMail
 } from "react-icons/fi";
 import RobotCanvas from "./robot/RobotCanvas";
+import { apiUrl } from "../lib/api";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +34,8 @@ const Chatbot = () => {
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   // "checking" | "online" | "offline" - reflects the real backend, not a guess
   const [serviceStatus, setServiceStatus] = useState("checking");
+  // true when a reply is taking unusually long (Render free tier wakes up slowly)
+  const [slowNotice, setSlowNotice] = useState(false);
   // holds the last message that could not be delivered, so Retry can resend it
   const [failedMessage, setFailedMessage] = useState(null);
   const messagesEndRef = useRef(null);
@@ -84,12 +87,13 @@ const Chatbot = () => {
   const checkService = useCallback(async (silent = false) => {
     if (!silent) setServiceStatus("checking");
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 6000);
+    // generous: the Render free tier can take a while to wake up
+    const timer = setTimeout(() => controller.abort(), 12000);
 
     try {
       // /api/health is instant and only proves the API server itself is up.
       // (The chat still answers from the local knowledge base if the AI provider is down.)
-      const response = await fetch("/api/health", {
+      const response = await fetch(apiUrl("/api/health"), {
         signal: controller.signal,
         cache: "no-store",
       });
@@ -124,17 +128,28 @@ const Chatbot = () => {
     };
   }, [checkService]);
 
+  // Hint when the first reply is slow (Render free tier cold start)
+  useEffect(() => {
+    if (!isLoading) {
+      setSlowNotice(false);
+      return undefined;
+    }
+    const timer = setTimeout(() => setSlowNotice(true), 6000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   // Ask the backend once. Errors are tagged so the UI can decide what to do:
   // - friendly: the server already explained the problem (rate limit, validation)
   // - backendDown/network/timeout: infrastructure problem, safe to retry
   const requestReply = async (userMessage, history) => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 45000);
+    // 60s: covers a sleeping Render instance plus the AI reply
+    const timer = setTimeout(() => controller.abort(), 60000);
 
     try {
       let response;
       try {
-        response = await fetch("/api/chatbot/chat", {
+        response = await fetch(apiUrl("/api/chatbot/chat"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: userMessage, history }),
@@ -206,8 +221,12 @@ const Chatbot = () => {
     // If the API is already known to be down, re-check once instead of firing a
     // request that is guaranteed to fail (keeps the console clean).
     if (serviceStatus === "offline") {
+      const checkStarted = Date.now();
       const backOnline = await checkService();
-      if (!backOnline) {
+      // Fast failure = the API is really down. A slow one usually means a
+      // sleeping Render instance is waking up, so let the real request through.
+      const reallyDown = !backOnline && Date.now() - checkStarted < 3000;
+      if (reallyDown) {
         setFailedMessage({
           text,
           history,
@@ -617,6 +636,12 @@ const Chatbot = () => {
                     </div>
                   </div>
                 </motion.div>
+              )}
+
+              {isLoading && slowNotice && (
+                <p className="pl-1 text-[11px] leading-snug text-purple-500">
+                  Waking up the assistant — this can take up to a minute on the free server.
+                </p>
               )}
 
               {/* Delivery failure - real error state with a working Retry */}

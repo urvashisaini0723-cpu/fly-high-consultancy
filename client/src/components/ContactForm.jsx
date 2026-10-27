@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUser, FiPhone, FiMail, FiMessageSquare, FiSend, FiCheck, FiAlertCircle } from "react-icons/fi";
+import { apiUrl } from "../lib/api";
 
 const INTERESTS = [
   "Tourist Visa",
@@ -34,7 +35,7 @@ const ContactForm = ({ compact = false }) => {
     setStatus("loading");
     setErrorMsg("");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(apiUrl("/api/contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

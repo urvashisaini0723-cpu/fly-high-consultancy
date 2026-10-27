@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fly-high-api
+    runtime: node
+    rootDir: server
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Comma separated list, e.g. https://fly-high-consultancy.vercel.app
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_TO
+        sync: false
