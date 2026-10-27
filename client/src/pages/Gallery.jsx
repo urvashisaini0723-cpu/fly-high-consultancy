@@ -3,7 +3,12 @@ import SectionHeading from "../components/SectionHeading";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
 
-const galleryImages = Array.from({ length: 24 }, (_, i) => `/gallery/img${i + 1}.jpg`);
+// The 2nd Anniversary poster stays pinned first, as requested.
+const featuredImage = "/gallery/featured-anniversary.jpg";
+const galleryImages = [
+  featuredImage,
+  ...Array.from({ length: 23 }, (_, i) => `/gallery/img${i + 1}.jpg`),
+];
 
 const Gallery = () => {
   const [activeIdx, setActiveIdx] = useState(null);
