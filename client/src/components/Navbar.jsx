@@ -24,6 +24,18 @@ const Navbar = () => {
 
   useEffect(() => setOpen(false), [location]);
 
+  // Clicking the logo/name always lands on the Home page top.
+  // Same page: smooth-scroll to top. Other pages: Link navigates to "/" and
+  // App's route effect handles the scroll.
+  const handleLogoClick = (e) => {
+    setOpen(false);
+    if (location.pathname === "/") {
+      e.preventDefault();
+      if (window.__lenis) window.__lenis.scrollTo(0, { duration: 1.1 });
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -33,7 +45,12 @@ const Navbar = () => {
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 text-white font-display font-extrabold text-2xl md:text-3xl">
+        <Link
+          to="/"
+          onClick={handleLogoClick}
+          aria-label="Fly High Consultancy — go to home top"
+          className="flex items-center gap-3 text-white font-display font-extrabold text-2xl md:text-3xl"
+        >
           <img src="/logo.png" alt="Fly High Consultancy logo" className="h-14 w-14 md:h-16 md:w-16 object-contain" />
           <span className="leading-none">
             FLY <span className="text-sky">HIGH</span>
