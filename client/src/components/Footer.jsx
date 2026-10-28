@@ -1,8 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FiSend, FiMapPin, FiPhone, FiMail, FiClock } from "react-icons/fi";
 import { FaInstagram, FaFacebookF, FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
+  const location = useLocation();
+
+  // Clicking a quick link for the page you're already on (e.g. Home while on
+  // the home page) scrolls back to the top instead of doing nothing.
+  const handleQuickLink = (e, to) => {
+    if (location.pathname !== to) return;
+    e.preventDefault();
+    if (window.__lenis) window.__lenis.scrollTo(0, { duration: 1.1 });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="bg-navy text-white">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 grid md:grid-cols-4 gap-10">
@@ -38,7 +49,11 @@ const Footer = () => {
               ["/contact", "Contact"],
             ].map(([to, l]) => (
               <li key={to}>
-                <Link to={to} className="hover:text-orange transition-colors">
+                <Link
+                  to={to}
+                  onClick={(e) => handleQuickLink(e, to)}
+                  className="hover:text-orange transition-colors"
+                >
                   {l}
                 </Link>
               </li>
