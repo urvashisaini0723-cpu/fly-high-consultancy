@@ -12,14 +12,14 @@ import {
   FiHelpCircle,
   FiInfo,
   FiMail,
-  FiCompass,
-  FiArrowRight
+  FiCompass
 } from "react-icons/fi";
 import RobotCanvas from "./robot/RobotCanvas";
 import { apiUrl } from "../lib/api";
 
 // Guided website tour. Kept local (no AI call) so it always works instantly,
 // even while the free backend is waking up, and never describes a page wrongly.
+// Order matters: Home -> Owner -> Courses -> Gallery -> Contact.
 const TOUR_STEPS = [
   {
     path: "/",
@@ -27,6 +27,13 @@ const TOUR_STEPS = [
     text: `This is where every journey starts. At the top, use "Get Free Consultation" to send an enquiry or "Explore Courses" to see our programmes.
 
 Scroll down for our stats, six core services, the countries we handle, why families choose Fly High, and the leadership team.`,
+  },
+  {
+    path: "/owner",
+    label: "Owner",
+    text: `Meet the people behind Fly High: Founder and Director Ankit Kumar, Co-Founder Tarsem Verma, Director Rajan Sharma, and our counselors Kajal and Nisha.
+
+You can also read the founder's story and our mission.`,
   },
   {
     path: "/courses",
@@ -41,13 +48,6 @@ The FAQ section at the bottom answers common questions about eligibility, docume
     text: `See real moments from our Pehowa office: team photos, client success stories and our 2nd anniversary celebration. The anniversary poster is pinned first.
 
 Tap any photo to open it full size.`,
-  },
-  {
-    path: "/owner",
-    label: "Owner",
-    text: `Meet the people behind Fly High: Founder and Director Ankit Kumar, Co-Founder Tarsem Verma, Director Rajan Sharma, and our counselors Kajal and Nisha.
-
-You can also read the founder's story and our mission.`,
   },
   {
     path: "/contact",
@@ -66,8 +66,10 @@ const Chatbot = () => {
   const [showChoice, setShowChoice] = useState(false);
   // -1 = tour not running, otherwise index inside TOUR_STEPS
   const [tourStep, setTourStep] = useState(-1);
-  // "scrolling" while the tour is auto-scrolling the current page, "done" otherwise
-  const [tourAuto, setTourAuto] = useState("done");
+  // paused when the visitor scrolls/touches during the auto tour
+  const [tourPaused, setTourPaused] = useState(false);
+  // bumping this replays the current page after Resume
+  const [tourRunId, setTourRunId] = useState(0);
   const tourStepRef = useRef(-1);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [messages, setMessages] = useState([
@@ -361,11 +363,12 @@ const Chatbot = () => {
   };
 
   /* ------------------------- Website tour ------------------------- */
-  // The tour is a compact card (not the chat) so the visitor can actually see
-  // each page while FlyBot explains it.
+  // Fully automatic tour: Home -> Owner -> Courses -> Gallery -> Contact.
+  // Each page scrolls itself and then moves on; no card sits over the page.
   const startTour = () => {
     setShowChoice(false);
     setIsOpen(false);
+    setTourPaused(false);
     tourStepRef.current = 0;
     setTourStep(0);
   };
@@ -378,6 +381,12 @@ const Chatbot = () => {
   const endTour = () => {
     tourStepRef.current = -1;
     setTourStep(-1);
+    setTourPaused(false);
+  };
+
+  const resumeTour = () => {
+    setTourPaused(false);
+    setTourRunId((n) => n + 1);
   };
 
   const nextTourStep = () => {
@@ -392,22 +401,14 @@ const Chatbot = () => {
     setTourStep(next);
   };
 
-  const prevTourStep = () => {
-    const current = tourStepRef.current;
-    if (current <= 0) return;
-    const prev = current - 1;
-    tourStepRef.current = prev;
-    setTourStep(prev);
-  };
-
-  // Move the browser to the page that belongs to the current tour step and
-  // slowly scroll through it so the visitor can just watch.
+  // Move to the current page, scroll through it, then move to the next page on
+  // its own. Any wheel/touch pauses the tour until Resume or End.
   useEffect(() => {
     if (tourStep < 0) return undefined;
     const step = TOUR_STEPS[tourStep];
     if (!step?.path) return undefined;
 
-    setTourAuto("scrolling");
+    setTourPaused(false);
     if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true });
     else window.scrollTo(0, 0);
     navigate(step.path);
@@ -416,22 +417,28 @@ const Chatbot = () => {
     let timer = null;
     let stepDelay = 0;
 
-    // the moment the visitor scrolls or touches, hand control back to them
-    const stopAutoScroll = (event) => {
+    const pause = (event) => {
       if (cancelled) return;
       cancelled = true;
       clearTimeout(timer);
-      window.removeEventListener("wheel", stopAutoScroll);
-      window.removeEventListener("touchstart", stopAutoScroll);
+      window.removeEventListener("wheel", pause);
+      window.removeEventListener("touchstart", pause);
+      window.removeEventListener("click", pause, true);
       // a wheel already replaces our animation with the visitor's own scroll;
       // a touch needs the running animation stopped before they can drag
       if (event.type === "touchstart" && window.__lenis) {
         window.__lenis.scrollTo(window.scrollY, { immediate: true });
       }
-      setTourAuto("done");
+      setTourPaused(true);
     };
-    window.addEventListener("wheel", stopAutoScroll, { passive: true });
-    window.addEventListener("touchstart", stopAutoScroll, { passive: true });
+    window.addEventListener("wheel", pause, { passive: true });
+    window.addEventListener("touchstart", pause, { passive: true });
+    window.addEventListener("click", pause, true);
+
+    const goToNextPage = () => {
+      if (cancelled) return;
+      nextTourStep();
+    };
 
     // scroll roughly one screen at a time so lazy images keep loading and the
     // page grows while we move down it
@@ -440,7 +447,8 @@ const Chatbot = () => {
       const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const currentY = window.scrollY;
       if (maxY - currentY < 80) {
-        setTourAuto("done");
+        // page finished - give the visitor a moment, then move on automatically
+        timer = setTimeout(goToNextPage, 1600);
         return;
       }
       // pace the scroll by page length: long pages scroll faster, short pages
@@ -462,11 +470,12 @@ const Chatbot = () => {
     return () => {
       cancelled = true;
       clearTimeout(timer);
-      window.removeEventListener("wheel", stopAutoScroll);
-      window.removeEventListener("touchstart", stopAutoScroll);
+      window.removeEventListener("wheel", pause);
+      window.removeEventListener("touchstart", pause);
+      window.removeEventListener("click", pause, true);
       if (window.__lenis) window.__lenis.scrollTo(window.scrollY, { immediate: true });
     };
-  }, [tourStep, navigate]);
+  }, [tourStep, tourRunId, navigate]);
 
   // If the backend comes back while a message is waiting, resend it once
   // automatically so the visitor never has to press Retry.
@@ -1017,100 +1026,46 @@ const Chatbot = () => {
         )}
       </AnimatePresence>
 
-      {/* Page-by-page tour card - the site itself moves through every page */}
+      {/* Minimal tour control - no side card, just progress plus pause/end */}
       <AnimatePresence>
         {tourStep >= 0 && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[70] flex justify-center sm:bottom-6">
           <motion.div
-            key="tour-card"
-            initial={{ opacity: 0, y: 30 }}
+            key="tour-pill"
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ type: "spring", stiffness: 300, damping: 26 }}
-            className="fixed inset-x-0 bottom-0 z-[65] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[370px]"
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ type: "spring", stiffness: 320, damping: 26 }}
+            aria-label="Website tour controls"
+            className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-white/15 bg-[#1e1b4b]/95 px-3 py-1.5 text-white shadow-xl backdrop-blur"
           >
-            <div className="overflow-hidden rounded-t-2xl border border-purple-200 bg-white shadow-2xl sm:rounded-2xl">
-              <div
-                className="flex items-center justify-between px-4 py-3"
-                style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+            <FiCompass size={13} className="text-purple-300" />
+            <span className="whitespace-nowrap text-[11px] font-semibold">
+              {tourPaused ? "Tour paused" : `${TOUR_STEPS[tourStep].label} page`}
+            </span>
+            <span className="text-[10px] text-purple-300">
+              {tourStep + 1}/{TOUR_STEPS.length}
+            </span>
+            {tourPaused && (
+              <button
+                type="button"
+                onClick={resumeTour}
+                className="rounded-full bg-purple-600 px-2.5 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-purple-500"
               >
-                <div className="flex items-center gap-2.5 text-white">
-                  <FiCompass size={18} />
-                  <div>
-                    <p className="text-sm font-semibold leading-tight">Website Tour</p>
-                    <p className="text-[11px] text-purple-100">
-                      Step {tourStep + 1} of {TOUR_STEPS.length} - {TOUR_STEPS[tourStep].label} page
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={endTour}
-                  aria-label="End website tour"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-                >
-                  <FiX size={16} />
-                </button>
-              </div>
-
-              <div
-                className="max-h-[45vh] overflow-y-auto px-4 pb-4 pt-3 sm:max-h-none"
-                style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-              >
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
-                  {TOUR_STEPS[tourStep].text}
-                </p>
-                <div className="mt-3 flex items-center gap-2">
-                  {tourStep > 0 && (
-                    <button
-                      type="button"
-                      onClick={prevTourStep}
-                      className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-                    >
-                      Back
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={nextTourStep}
-                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold text-white shadow-md transition-transform hover:scale-[1.01]"
-                    style={{ background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)" }}
-                  >
-                    {tourStep < TOUR_STEPS.length - 1 ? "Next page" : "Finish tour"}
-                    <FiArrowRight size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={endTour}
-                    className="rounded-xl px-2.5 py-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                  >
-                    End
-                  </button>
-                </div>
-                <p className="mt-2 text-center text-[10px] text-slate-400">
-                  {tourAuto === "scrolling"
-                    ? "Auto-scrolling this page..."
-                    : tourStep < TOUR_STEPS.length - 1
-                      ? "Tap Next page when ready"
-                      : "Tap Finish tour when ready"}
-                </p>
-                <div className="mt-2 flex items-center justify-center gap-1">
-                  {TOUR_STEPS.map((s, i) => (
-                    <span
-                      key={s.path}
-                      className={`h-1.5 rounded-full transition-all ${
-                        i === tourStep ? "w-5 bg-purple-600" : "w-1.5 bg-purple-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
+                Resume
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={endTour}
+              className="rounded-full px-2 py-1 text-[10px] font-semibold text-purple-200 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              End
+            </button>
           </motion.div>
+          </div>
         )}
       </AnimatePresence>
-
-      {/* keep the footer reachable above the mobile tour card */}
-      {tourStep >= 0 && <div aria-hidden="true" className="h-[360px] sm:hidden" />}
     </>
   );
 };
