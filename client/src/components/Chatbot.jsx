@@ -13,8 +13,7 @@ import {
   FiInfo,
   FiMail,
   FiCompass,
-  FiArrowRight,
-  FiExternalLink
+  FiArrowRight
 } from "react-icons/fi";
 import RobotCanvas from "./robot/RobotCanvas";
 import { apiUrl } from "../lib/api";
@@ -25,54 +24,37 @@ const TOUR_STEPS = [
   {
     path: "/",
     label: "Home",
-    text: `Step 1 of 5 - Home page
-
-This is where every journey starts. At the top, use "Get Free Consultation" to send an enquiry or "Explore Courses" to see our programmes.
+    text: `This is where every journey starts. At the top, use "Get Free Consultation" to send an enquiry or "Explore Courses" to see our programmes.
 
 Scroll down for our stats, six core services, the countries we handle, why families choose Fly High, and the leadership team.`,
   },
   {
     path: "/courses",
     label: "Courses",
-    text: `Step 2 of 5 - Courses page
-
-Here you can see every service in detail: study visas for Canada, Australia, UK, USA, New Zealand and Europe, tourist visas, spouse and dependent visas, PTE coaching, interview preparation and career counseling.
+    text: `Here you can see every service in detail: study visas for Canada, Australia, UK, USA, New Zealand and Europe, tourist visas, spouse and dependent visas, PTE coaching, interview preparation and career counseling.
 
 The FAQ section at the bottom answers common questions about eligibility, documents and fees.`,
   },
   {
     path: "/gallery",
     label: "Gallery",
-    text: `Step 3 of 5 - Gallery page
-
-See real moments from our Pehowa office: team photos, client success stories and our 2nd anniversary celebration. The anniversary poster is pinned first.
+    text: `See real moments from our Pehowa office: team photos, client success stories and our 2nd anniversary celebration. The anniversary poster is pinned first.
 
 Tap any photo to open it full size.`,
   },
   {
     path: "/owner",
     label: "Owner",
-    text: `Step 4 of 5 - Owner page
-
-Meet the people behind Fly High: Founder and Director Ankit Kumar, Co-Founder Tarsem Verma, Director Rajan Sharma, and our counselors Kajal and Nisha.
+    text: `Meet the people behind Fly High: Founder and Director Ankit Kumar, Co-Founder Tarsem Verma, Director Rajan Sharma, and our counselors Kajal and Nisha.
 
 You can also read the founder's story and our mission.`,
   },
   {
     path: "/contact",
     label: "Contact",
-    text: `Step 5 of 5 - Contact page
-
-Use the enquiry form to share your name, phone, email and interest. Our team replies with a free profile assessment.
+    text: `Use the enquiry form to share your name, phone, email and interest. Our team replies with a free profile assessment.
 
 You can also call or WhatsApp +91-93061-42129, visit us near New PNB Bank in Pehowa, or come by Monday to Saturday, 10:00 AM to 7:00 PM.`,
-  },
-  {
-    path: null,
-    label: "",
-    text: `Tour complete!
-
-You now know where everything is on the website. Ask me anything about visas, PTE, documents or our services, or open the Contact page to send an enquiry.`,
   },
 ];
 
@@ -80,6 +62,8 @@ const Chatbot = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  // first popover shown when the robot launcher is clicked
+  const [showChoice, setShowChoice] = useState(false);
   // -1 = tour not running, otherwise index inside TOUR_STEPS
   const [tourStep, setTourStep] = useState(-1);
   const tourStepRef = useRef(-1);
@@ -375,28 +359,18 @@ const Chatbot = () => {
   };
 
   /* ------------------------- Website tour ------------------------- */
+  // The tour is a compact card (not the chat) so the visitor can actually see
+  // each page while FlyBot explains it.
   const startTour = () => {
-    if (tourStepRef.current >= 0) return;
+    setShowChoice(false);
+    setIsOpen(false);
     tourStepRef.current = 0;
     setTourStep(0);
-    setFailedMessage(null);
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: "Take a website tour", timestamp: new Date() },
-      { role: "assistant", content: TOUR_STEPS[0].text, timestamp: new Date() },
-    ]);
   };
 
-  const nextTourStep = () => {
-    const current = tourStepRef.current;
-    if (current < 0 || current >= TOUR_STEPS.length - 1) return;
-    const next = current + 1;
-    tourStepRef.current = next;
-    setTourStep(next);
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: TOUR_STEPS[next].text, timestamp: new Date() },
-    ]);
+  const openChatFromChoice = () => {
+    setShowChoice(false);
+    setIsOpen(true);
   };
 
   const endTour = () => {
@@ -404,13 +378,39 @@ const Chatbot = () => {
     setTourStep(-1);
   };
 
-  const openTourPage = () => {
-    const step = TOUR_STEPS[tourStepRef.current];
-    if (!step || !step.path) return;
-    navigate(step.path);
-    // on phones the chat covers the page - step aside so the visitor sees it
-    if (isMobile) setIsOpen(false);
+  const nextTourStep = () => {
+    const current = tourStepRef.current;
+    if (current < 0) return;
+    if (current >= TOUR_STEPS.length - 1) {
+      endTour();
+      return;
+    }
+    const next = current + 1;
+    tourStepRef.current = next;
+    setTourStep(next);
   };
+
+  const prevTourStep = () => {
+    const current = tourStepRef.current;
+    if (current <= 0) return;
+    const prev = current - 1;
+    tourStepRef.current = prev;
+    setTourStep(prev);
+  };
+
+  // Move the browser to the page that belongs to the current tour step.
+  useEffect(() => {
+    if (tourStep < 0) return undefined;
+    const step = TOUR_STEPS[tourStep];
+    if (!step?.path) return undefined;
+    navigate(step.path);
+    // if we were already on that page (no route change), still show its top
+    const t = setTimeout(() => {
+      if (window.__lenis) window.__lenis.scrollTo(0, { duration: 0.9 });
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [tourStep, navigate]);
 
   // If the backend comes back while a message is waiting, resend it once
   // automatically so the visitor never has to press Retry.
@@ -487,7 +487,7 @@ const Chatbot = () => {
       {/* Floating 3D Robot Launcher */}
       <div
         className={`group fixed bottom-4 right-3 z-[60] flex flex-col items-center transition-all duration-300 ${
-          isOpen
+          isOpen || tourStep >= 0
             ? "pointer-events-none translate-y-4 scale-90 opacity-0"
             : "pointer-events-auto translate-y-0 scale-100 opacity-100"
         }`}
@@ -506,7 +506,7 @@ const Chatbot = () => {
 
         <motion.button
           type="button"
-          onClick={toggleChat}
+          onClick={() => setShowChoice(true)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onFocus={() => setIsHovered(true)}
@@ -736,52 +736,6 @@ const Chatbot = () => {
                   </motion.div>
                 ))}
               </AnimatePresence>
-              {/* Guided website tour controls */}
-              {tourStep >= 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="w-full max-w-[85%] rounded-2xl rounded-bl-md border border-purple-200 bg-purple-50 px-3.5 py-2.5 shadow-sm">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-purple-500">
-                      {tourStep < TOUR_STEPS.length - 1
-                        ? `Website tour - step ${tourStep + 1} of ${TOUR_STEPS.length - 1}`
-                        : "Website tour - complete"}
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      {TOUR_STEPS[tourStep]?.path && (
-                        <button
-                          type="button"
-                          onClick={openTourPage}
-                          className="inline-flex items-center gap-1 rounded-lg bg-purple-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
-                        >
-                          <FiExternalLink size={12} />
-                          Open {TOUR_STEPS[tourStep].label}
-                        </button>
-                      )}
-                      {tourStep < TOUR_STEPS.length - 1 && (
-                        <button
-                          type="button"
-                          onClick={nextTourStep}
-                          className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-purple-700 transition-colors hover:bg-purple-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
-                        >
-                          Next step
-                          <FiArrowRight size={12} />
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={endTour}
-                        className="inline-flex items-center rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                      >
-                        End tour
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
               <div ref={messagesEndRef} />
               
               {/* Typing indicator */}
@@ -943,6 +897,150 @@ const Chatbot = () => {
               <p className="text-xs text-slate-400 text-center mt-2">
                 FlyBot only answers Fly High Consultancy related queries ✈️
               </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Chat or Tour chooser - opens when the robot launcher is clicked */}
+      <AnimatePresence>
+        {showChoice && !isOpen && tourStep < 0 && (
+          <>
+            <motion.div
+              key="choice-backdrop"
+              className="fixed inset-0 z-[64] bg-transparent"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowChoice(false)}
+            />
+            <motion.div
+              key="choice-card"
+              initial={{ opacity: 0, y: 16, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 320, damping: 24 }}
+              className="fixed bottom-[128px] left-3 right-3 z-[65] rounded-2xl border border-purple-200 bg-white p-4 shadow-2xl sm:left-auto sm:right-6 sm:w-[320px]"
+              role="dialog"
+              aria-label="Choose chat or website tour"
+            >
+              <button
+                type="button"
+                onClick={() => setShowChoice(false)}
+                aria-label="Close"
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              >
+                <FiX size={14} />
+              </button>
+              <p className="pr-6 text-sm font-semibold text-navy">Hi, I'm FlyBot</p>
+              <p className="mt-0.5 text-xs text-slate-500">What would you like to do?</p>
+              <div className="mt-3 space-y-2">
+                <button
+                  type="button"
+                  onClick={openChatFromChoice}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold text-white shadow-md transition-transform hover:scale-[1.01]"
+                  style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+                >
+                  <FiMessageSquare size={16} />
+                  Chat with FlyBot
+                </button>
+                <button
+                  type="button"
+                  onClick={startTour}
+                  className="flex w-full items-center gap-2.5 rounded-xl border border-purple-200 bg-purple-50 px-3 py-2.5 text-left text-[13px] font-semibold text-purple-700 transition-colors hover:bg-purple-100"
+                >
+                  <FiCompass size={16} />
+                  Take a website tour
+                </button>
+              </div>
+              <p className="mt-2 text-center text-[10px] text-slate-400">
+                Each page opens automatically during the tour
+              </p>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Page-by-page tour card - the site itself moves through every page */}
+      <AnimatePresence>
+        {tourStep >= 0 && (
+          <motion.div
+            key="tour-card"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ type: "spring", stiffness: 300, damping: 26 }}
+            className="fixed inset-x-0 bottom-0 z-[65] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[370px]"
+          >
+            <div className="overflow-hidden rounded-t-2xl border border-purple-200 bg-white shadow-2xl sm:rounded-2xl">
+              <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+              >
+                <div className="flex items-center gap-2.5 text-white">
+                  <FiCompass size={18} />
+                  <div>
+                    <p className="text-sm font-semibold leading-tight">Website Tour</p>
+                    <p className="text-[11px] text-purple-100">
+                      Step {tourStep + 1} of {TOUR_STEPS.length} - {TOUR_STEPS[tourStep].label} page
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={endTour}
+                  aria-label="End website tour"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+
+              <div
+                className="max-h-[45vh] overflow-y-auto px-4 pb-4 pt-3 sm:max-h-none"
+                style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+              >
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                  {TOUR_STEPS[tourStep].text}
+                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  {tourStep > 0 && (
+                    <button
+                      type="button"
+                      onClick={prevTourStep}
+                      className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                    >
+                      Back
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={nextTourStep}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold text-white shadow-md transition-transform hover:scale-[1.01]"
+                    style={{ background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)" }}
+                  >
+                    {tourStep < TOUR_STEPS.length - 1 ? "Next page" : "Finish tour"}
+                    <FiArrowRight size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={endTour}
+                    className="rounded-xl px-2.5 py-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    End
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center justify-center gap-1">
+                  {TOUR_STEPS.map((s, i) => (
+                    <span
+                      key={s.path}
+                      className={`h-1.5 rounded-full transition-all ${
+                        i === tourStep ? "w-5 bg-purple-600" : "w-1.5 bg-purple-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
