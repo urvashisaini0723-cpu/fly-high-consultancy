@@ -80,8 +80,16 @@ COUNTRIES WE HANDLE:
 - Europe (Germany, France, Italy, Poland, etc.)
 
 WORKING HOURS:
-- Monday to Saturday: 9:00 AM - 6:00 PM
+- Monday to Saturday: 10:00 AM - 7:00 PM
 - Sunday: Closed (Appointment only)
+
+WEBSITE PAGES:
+- Home: hero with "Get Free Consultation" and "Explore Courses" buttons, stats, six core services, countries we handle, why choose Fly High, leadership preview, visa documents, study process, testimonials and a contact section
+- Owner: founder story, directors and team profiles (Ankit Kumar, Tarsem Verma, Rajan Sharma, Kajal, Nisha)
+- Courses: study visa, tourist visa, spouse/dependent visa, PTE coaching, interview preparation and career counseling, plus an FAQ section
+- Gallery: office and team photos, client success stories, and the 2nd anniversary poster (pinned first)
+- Contact: enquiry form (name, phone, email, interest, message), phone/WhatsApp, address and office hours
+- Website tour: FlyBot has a Tour button that guides visitors through all five pages, one step at a time
 `;
 
 const SYSTEM_PROMPT = `You are "FlyBot", the official assistant of Fly High Consultancy, Pehowa, Haryana.
@@ -94,8 +102,10 @@ GROUNDING (very important):
 - Answer ONLY using the KNOWLEDGE BASE given below.
 - Never invent services, prices, guarantees, dates or partner names.
 - If something is not in the knowledge base, say you are not sure and give the phone number.
-- Only answer questions about Fly High Consultancy, visas, PTE, interview prep, study abroad and related topics.
-- For anything unrelated (politics, coding, movies, health, etc.) politely decline and redirect to our services.
+- Only answer questions about Fly High Consultancy, its website pages, visas, PTE, interview preparation, study abroad and related services.
+- Never answer general knowledge, news, politics, sports, movies, songs, jokes, poems, stories, math, coding, cooking, health, weather, translations, personal advice or any other unrelated topic - not even partially, and not "just this once".
+- For any unrelated request, reply with exactly this line and nothing else:
+"I can only help with Fly High Consultancy and study abroad queries. For anything else you'll need another service. Call or WhatsApp +91-93061-42129 for visa help."
 
 FORMATTING (strict):
 - Plain text only. No markdown, no **bold**, no *italics*, no tables, no HTML, no emojis.
@@ -403,9 +413,21 @@ router.post("/chat", async (req, res) => {
   // Hard guardrail for clearly unrelated topics.
   const lowerMsg = message.toLowerCase();
   const irrelevant = [
-    "politics", "election", "cricket", "movie", "celebrity", "stock market",
-    "crypto", "bitcoin", "programming", "coding", "javascript", "python",
-    "recipe", "cooking", "disease", "medicine", "weather forecast", "football",
+    "politics", "election", "government", "prime minister", "president", "capital of",
+    "history", "science", "physics", "chemistry", "mathematics", "math", "calculate",
+    "equation", "homework", "essay", "translate", "translation",
+    "cricket", "football", "soccer", "tennis", "olympic", "world cup", "match score",
+    "movie", "film", "bollywood", "hollywood", "actor", "actress", "celebrity",
+    "song", "lyrics", "music", "netflix", "youtube video",
+    "joke", "poem", "poetry", "shayari", "story", "novel",
+    "recipe", "cooking", "cook", "food", "restaurant",
+    "disease", "medicine", "doctor", "health", "diet", "gym", "weight loss",
+    "weather", "temperature", "rain forecast",
+    "stock market", "share market", "crypto", "bitcoin", "trading",
+    "programming", "coding", "javascript", "python", "html", "css", "software",
+    "astrology", "horoscope", "religion", "god", "prayer",
+    "girlfriend", "boyfriend", "dating", "relationship", "love letter",
+    "gaming", "video game", "fortnite", "minecraft",
   ];
   const relevant = [
     "visa", "study", "abroad", "pte", "ielts", "toefl", "interview", "career",
@@ -415,10 +437,13 @@ router.post("/chat", async (req, res) => {
     "consultancy", "tourist", "spouse", "dependent", "immigration", "permit",
     "coaching", "training", "preparation", "contact", "phone", "address",
     "fee", "fees", "price", "cost", "owner", "team", "office", "timing",
+    "website", "site", "web", "page", "pages", "tour", "gallery", "photo",
+    "service", "services", "course", "courses", "student", "students",
+    "insurance", "success", "client", "flybot", "chatbot",
   ];
 
   if (
-    message.length > 20 &&
+    message.length > 6 &&
     irrelevant.some((k) => lowerMsg.includes(k)) &&
     !relevant.some((k) => lowerMsg.includes(k))
   ) {
@@ -426,7 +451,7 @@ router.post("/chat", async (req, res) => {
       success: true,
       source: "guardrail",
       reply:
-        "I'm FlyBot, the Fly High Consultancy assistant, and I can only help with study visas, tourist visas, PTE coaching, interview preparation and related topics.\n\nCall or WhatsApp +91-93061-42129 and our counselors will help you personally.",
+        "I'm FlyBot, the Fly High Consultancy assistant, and I can only help with our website, visas, study abroad, PTE coaching and related topics.\n\nCall or WhatsApp +91-93061-42129 and our counselors will help you personally.",
     });
   }
 

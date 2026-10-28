@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSend,
@@ -10,14 +11,78 @@ import {
   FiMessageSquare,
   FiHelpCircle,
   FiInfo,
-  FiMail
+  FiMail,
+  FiCompass,
+  FiArrowRight,
+  FiExternalLink
 } from "react-icons/fi";
 import RobotCanvas from "./robot/RobotCanvas";
 import { apiUrl } from "../lib/api";
 
+// Guided website tour. Kept local (no AI call) so it always works instantly,
+// even while the free backend is waking up, and never describes a page wrongly.
+const TOUR_STEPS = [
+  {
+    path: "/",
+    label: "Home",
+    text: `Step 1 of 5 - Home page
+
+This is where every journey starts. At the top, use "Get Free Consultation" to send an enquiry or "Explore Courses" to see our programmes.
+
+Scroll down for our stats, six core services, the countries we handle, why families choose Fly High, and the leadership team.`,
+  },
+  {
+    path: "/courses",
+    label: "Courses",
+    text: `Step 2 of 5 - Courses page
+
+Here you can see every service in detail: study visas for Canada, Australia, UK, USA, New Zealand and Europe, tourist visas, spouse and dependent visas, PTE coaching, interview preparation and career counseling.
+
+The FAQ section at the bottom answers common questions about eligibility, documents and fees.`,
+  },
+  {
+    path: "/gallery",
+    label: "Gallery",
+    text: `Step 3 of 5 - Gallery page
+
+See real moments from our Pehowa office: team photos, client success stories and our 2nd anniversary celebration. The anniversary poster is pinned first.
+
+Tap any photo to open it full size.`,
+  },
+  {
+    path: "/owner",
+    label: "Owner",
+    text: `Step 4 of 5 - Owner page
+
+Meet the people behind Fly High: Founder and Director Ankit Kumar, Co-Founder Tarsem Verma, Director Rajan Sharma, and our counselors Kajal and Nisha.
+
+You can also read the founder's story and our mission.`,
+  },
+  {
+    path: "/contact",
+    label: "Contact",
+    text: `Step 5 of 5 - Contact page
+
+Use the enquiry form to share your name, phone, email and interest. Our team replies with a free profile assessment.
+
+You can also call or WhatsApp +91-93061-42129, visit us near New PNB Bank in Pehowa, or come by Monday to Saturday, 10:00 AM to 7:00 PM.`,
+  },
+  {
+    path: null,
+    label: "",
+    text: `Tour complete!
+
+You now know where everything is on the website. Ask me anything about visas, PTE, documents or our services, or open the Contact page to send an enquiry.`,
+  },
+];
+
 const Chatbot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  // -1 = tour not running, otherwise index inside TOUR_STEPS
+  const [tourStep, setTourStep] = useState(-1);
+  const tourStepRef = useRef(-1);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -286,6 +351,12 @@ const Chatbot = () => {
     const text = (typeof overrideText === "string" ? overrideText : input).trim();
     if (!text || isLoading || inFlightRef.current) return;
 
+    // a typed question switches from the guided tour to normal Q&A
+    if (tourStepRef.current >= 0) {
+      tourStepRef.current = -1;
+      setTourStep(-1);
+    }
+
     autoRetriedRef.current = null;
     // history is captured before the new message is appended
     const history = messages
@@ -301,6 +372,44 @@ const Chatbot = () => {
   const retryFailed = () => {
     if (!failedMessage || isLoading || inFlightRef.current) return;
     deliver(failedMessage.text, failedMessage.history, false);
+  };
+
+  /* ------------------------- Website tour ------------------------- */
+  const startTour = () => {
+    if (tourStepRef.current >= 0) return;
+    tourStepRef.current = 0;
+    setTourStep(0);
+    setFailedMessage(null);
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: "Take a website tour", timestamp: new Date() },
+      { role: "assistant", content: TOUR_STEPS[0].text, timestamp: new Date() },
+    ]);
+  };
+
+  const nextTourStep = () => {
+    const current = tourStepRef.current;
+    if (current < 0 || current >= TOUR_STEPS.length - 1) return;
+    const next = current + 1;
+    tourStepRef.current = next;
+    setTourStep(next);
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: TOUR_STEPS[next].text, timestamp: new Date() },
+    ]);
+  };
+
+  const endTour = () => {
+    tourStepRef.current = -1;
+    setTourStep(-1);
+  };
+
+  const openTourPage = () => {
+    const step = TOUR_STEPS[tourStepRef.current];
+    if (!step || !step.path) return;
+    navigate(step.path);
+    // on phones the chat covers the page - step aside so the visitor sees it
+    if (isMobile) setIsOpen(false);
   };
 
   // If the backend comes back while a message is waiting, resend it once
@@ -330,6 +439,8 @@ const Chatbot = () => {
     ]);
     setFailedMessage(null);
     setInput("");
+    tourStepRef.current = -1;
+    setTourStep(-1);
   };
 
   const toggleMaximize = () => {
@@ -537,6 +648,16 @@ const Chatbot = () => {
                 </div>
               </div>
               <div className="flex items-center gap-1 relative z-10">
+                <button
+                  type="button"
+                  onClick={startTour}
+                  className="flex h-8 items-center gap-1 rounded-lg px-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                  aria-label="Start the website tour"
+                  title="Website tour"
+                >
+                  <FiCompass size={16} />
+                  <span className="hidden text-[11px] font-semibold sm:inline">Tour</span>
+                </button>
                 {!isMobile && (
                   <button
                     type="button"
@@ -615,6 +736,52 @@ const Chatbot = () => {
                   </motion.div>
                 ))}
               </AnimatePresence>
+              {/* Guided website tour controls */}
+              {tourStep >= 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
+                >
+                  <div className="w-full max-w-[85%] rounded-2xl rounded-bl-md border border-purple-200 bg-purple-50 px-3.5 py-2.5 shadow-sm">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-purple-500">
+                      {tourStep < TOUR_STEPS.length - 1
+                        ? `Website tour - step ${tourStep + 1} of ${TOUR_STEPS.length - 1}`
+                        : "Website tour - complete"}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {TOUR_STEPS[tourStep]?.path && (
+                        <button
+                          type="button"
+                          onClick={openTourPage}
+                          className="inline-flex items-center gap-1 rounded-lg bg-purple-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                        >
+                          <FiExternalLink size={12} />
+                          Open {TOUR_STEPS[tourStep].label}
+                        </button>
+                      )}
+                      {tourStep < TOUR_STEPS.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={nextTourStep}
+                          className="inline-flex items-center gap-1 rounded-lg border border-purple-300 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-purple-700 transition-colors hover:bg-purple-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                        >
+                          Next step
+                          <FiArrowRight size={12} />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={endTour}
+                        className="inline-flex items-center rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                      >
+                        End tour
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               <div ref={messagesEndRef} />
               
               {/* Typing indicator */}
@@ -672,6 +839,17 @@ const Chatbot = () => {
             {/* Quick Reply Buttons - Only show on first message */}
             {messages.length === 1 && !isLoading && (
               <div className="flex-shrink-0 border-t border-purple-100 px-3 py-2.5" style={{ background: "rgba(250,247,255,0.9)" }}>
+                <motion.button
+                  type="button"
+                  onClick={startTour}
+                  className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-semibold text-white shadow-md"
+                  style={{ background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)" }}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <FiCompass size={14} />
+                  Take a website tour
+                </motion.button>
                 <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wide text-purple-500">
                   Quick questions
                 </p>
