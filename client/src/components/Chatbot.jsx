@@ -66,6 +66,8 @@ const Chatbot = () => {
   const [showChoice, setShowChoice] = useState(false);
   // -1 = tour not running, otherwise index inside TOUR_STEPS
   const [tourStep, setTourStep] = useState(-1);
+  // "scrolling" while the tour is auto-scrolling the current page, "done" otherwise
+  const [tourAuto, setTourAuto] = useState("done");
   const tourStepRef = useRef(-1);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [messages, setMessages] = useState([
@@ -398,18 +400,72 @@ const Chatbot = () => {
     setTourStep(prev);
   };
 
-  // Move the browser to the page that belongs to the current tour step.
+  // Move the browser to the page that belongs to the current tour step and
+  // slowly scroll through it so the visitor can just watch.
   useEffect(() => {
     if (tourStep < 0) return undefined;
     const step = TOUR_STEPS[tourStep];
     if (!step?.path) return undefined;
+
+    setTourAuto("scrolling");
+    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true });
+    else window.scrollTo(0, 0);
     navigate(step.path);
-    // if we were already on that page (no route change), still show its top
-    const t = setTimeout(() => {
-      if (window.__lenis) window.__lenis.scrollTo(0, { duration: 0.9 });
-      else window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 120);
-    return () => clearTimeout(t);
+
+    let cancelled = false;
+    let timer = null;
+    let stepDelay = 0;
+
+    // the moment the visitor scrolls or touches, hand control back to them
+    const stopAutoScroll = (event) => {
+      if (cancelled) return;
+      cancelled = true;
+      clearTimeout(timer);
+      window.removeEventListener("wheel", stopAutoScroll);
+      window.removeEventListener("touchstart", stopAutoScroll);
+      // a wheel already replaces our animation with the visitor's own scroll;
+      // a touch needs the running animation stopped before they can drag
+      if (event.type === "touchstart" && window.__lenis) {
+        window.__lenis.scrollTo(window.scrollY, { immediate: true });
+      }
+      setTourAuto("done");
+    };
+    window.addEventListener("wheel", stopAutoScroll, { passive: true });
+    window.addEventListener("touchstart", stopAutoScroll, { passive: true });
+
+    // scroll roughly one screen at a time so lazy images keep loading and the
+    // page grows while we move down it
+    const scrollDown = () => {
+      if (cancelled) return;
+      const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const currentY = window.scrollY;
+      if (maxY - currentY < 80) {
+        setTourAuto("done");
+        return;
+      }
+      // pace the scroll by page length: long pages scroll faster, short pages
+      // slower, but the whole page takes roughly 6-18 seconds either way
+      if (!stepDelay) {
+        const viewportStep = Math.max(240, Math.round(window.innerHeight * 0.85));
+        const steps = Math.max(1, Math.ceil(maxY / viewportStep));
+        const totalMs = Math.min(18000, Math.max(6000, (maxY / 400) * 1000));
+        stepDelay = Math.max(1100, Math.round(totalMs / steps));
+      }
+      const target = Math.min(currentY + Math.round(window.innerHeight * 0.85), maxY);
+      if (window.__lenis) window.__lenis.scrollTo(target, { duration: 1.05 });
+      else window.scrollTo({ top: target, behavior: "smooth" });
+      timer = setTimeout(scrollDown, stepDelay);
+    };
+
+    timer = setTimeout(scrollDown, 1200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      window.removeEventListener("wheel", stopAutoScroll);
+      window.removeEventListener("touchstart", stopAutoScroll);
+      if (window.__lenis) window.__lenis.scrollTo(window.scrollY, { immediate: true });
+    };
   }, [tourStep, navigate]);
 
   // If the backend comes back while a message is waiting, resend it once
@@ -1030,6 +1086,13 @@ const Chatbot = () => {
                     End
                   </button>
                 </div>
+                <p className="mt-2 text-center text-[10px] text-slate-400">
+                  {tourAuto === "scrolling"
+                    ? "Auto-scrolling this page..."
+                    : tourStep < TOUR_STEPS.length - 1
+                      ? "Tap Next page when ready"
+                      : "Tap Finish tour when ready"}
+                </p>
                 <div className="mt-2 flex items-center justify-center gap-1">
                   {TOUR_STEPS.map((s, i) => (
                     <span
@@ -1045,6 +1108,9 @@ const Chatbot = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* keep the footer reachable above the mobile tour card */}
+      {tourStep >= 0 && <div aria-hidden="true" className="h-[360px] sm:hidden" />}
     </>
   );
 };
