@@ -69,3 +69,11 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: #0b1f3a; }
 ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 5px; }
+
+/* Keep the fixed social rail from peeking past the mobile chat card */
+@media (max-width: 639px) {
+  body.chat-open .social-rail {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

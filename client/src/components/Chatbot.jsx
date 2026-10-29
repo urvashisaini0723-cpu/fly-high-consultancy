@@ -94,6 +94,7 @@ const Chatbot = () => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const inputRef = useRef(null);
   const inFlightRef = useRef(false);
   const autoRetriedRef = useRef(null);
 
@@ -106,6 +107,41 @@ const Chatbot = () => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Let the page know the chat is open so small floating elements can step
+  // aside (the mobile social rail would otherwise peek past the card edge).
+  useEffect(() => {
+    document.body.classList.toggle("chat-open", isOpen);
+    return () => document.body.classList.remove("chat-open");
+  }, [isOpen]);
+
+  // On iOS the keyboard does not resize the layout viewport. Track the visual
+  // viewport so the card (and the send button) move above the keyboard instead
+  // of hiding behind it.
+  useEffect(() => {
+    if (!isOpen || !isMobile) return undefined;
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+    const update = () => {
+      const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      document.documentElement.style.setProperty("--chat-kb", `${Math.round(keyboard)}px`);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      document.documentElement.style.removeProperty("--chat-kb");
+    };
+  }, [isOpen, isMobile]);
+
+  // Grow the message box with the text, up to 140px, then let it scroll.
+  const resizeInput = (el) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, 44), 140)}px`;
+  };
 
   // Scroll the conversation area itself (never the page) to the newest message
   useEffect(() => {
@@ -353,6 +389,9 @@ const Chatbot = () => {
       .map((m) => ({ role: m.role, content: m.content }));
 
     setInput("");
+    if (inputRef.current) {
+      inputRef.current.style.height = "44px";
+    }
     deliver(text, history, true);
   };
 
@@ -504,6 +543,9 @@ const Chatbot = () => {
     ]);
     setFailedMessage(null);
     setInput("");
+    if (inputRef.current) {
+      inputRef.current.style.height = "44px";
+    }
     tourStepRef.current = -1;
     setTourStep(-1);
   };
@@ -536,15 +578,16 @@ const Chatbot = () => {
     sendMessage(text);
   };
 
-  // Mobile styles
+  // Mobile styles – a floating card, not a full-screen takeover. The page
+  // stays visible above it and the input row never sits under the keyboard.
   const mobileStyles = {
-    width: isMobile ? "100vw" : isMaximized ? "500px" : "380px",
-    height: isMobile ? "100dvh" : isMaximized ? "680px" : "560px",
-    maxWidth: isMobile ? "100vw" : "90vw",
-    maxHeight: isMobile ? "100vh" : "85vh",
-    borderRadius: isMobile ? "0" : "1.5rem",
-    bottom: isMobile ? "0" : "1.25rem",
-    right: isMobile ? "0" : "1.25rem",
+    width: isMobile ? "calc(100vw - 1rem)" : isMaximized ? "500px" : "380px",
+    height: isMobile ? "78dvh" : isMaximized ? "680px" : "560px",
+    maxWidth: isMobile ? "calc(100vw - 1rem)" : "90vw",
+    maxHeight: isMobile ? "min(640px, calc(100dvh - 4.5rem - var(--chat-kb, 0px)))" : "85vh",
+    borderRadius: isMobile ? "1rem" : "1.5rem",
+    bottom: isMobile ? "calc(0.5rem + var(--chat-kb, 0px))" : "1.25rem",
+    right: isMobile ? "0.5rem" : "1.25rem",
   };
 
   return (
@@ -917,19 +960,24 @@ const Chatbot = () => {
               }}
             >
               <div className="flex items-end gap-2">
-                <div className="flex-1 relative">
+                <div className="relative min-w-0 flex-1">
                   <textarea
+                    ref={inputRef}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      resizeInput(e.target);
+                    }}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask about visas, PTE, interviews..."
+                    placeholder="Ask about visas, PTE..."
                     rows={1}
                     disabled={isLoading}
-                    className="w-full px-4 py-2.5 pr-12 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 resize-none transition-all"
+                    className="w-full min-w-0 px-4 py-2.5 pr-12 text-base bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 resize-none transition-all sm:text-sm"
                     style={{ 
                       minHeight: "44px",
                       maxHeight: "140px",
-                      fontFamily: "inherit"
+                      fontFamily: "inherit",
+                      fontSize: isMobile ? "16px" : undefined
                     }}
                   />
                   <button

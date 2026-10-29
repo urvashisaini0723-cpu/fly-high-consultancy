@@ -32,7 +32,7 @@ const items = [
 
 const WhatsAppButton = () => {
   return (
-    <div className="fixed left-1 sm:left-5 bottom-5 z-40 flex flex-col gap-3 items-start">
+    <div className="social-rail fixed left-1 sm:left-5 bottom-5 z-40 flex flex-col gap-3 items-start transition-opacity duration-200">
       {items.map((it, i) => (
         <motion.a
           key={it.label}
