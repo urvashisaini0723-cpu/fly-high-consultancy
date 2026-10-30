@@ -100,7 +100,7 @@ const Home = () => {
           >
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
               <img
-                src="/hero.jpg"
+                src="/hero.webp"
                 alt="Fly High Consultancy"
                 className="w-full h-[360px] object-cover object-center"
               />

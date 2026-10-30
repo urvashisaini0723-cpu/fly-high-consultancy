@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
 
 // The 2nd Anniversary poster stays pinned first, as requested.
-const featuredImage = "/gallery/featured-anniversary.jpg";
+const featuredImage = "/gallery/featured-anniversary.webp";
 const galleryImages = [
   featuredImage,
-  ...Array.from({ length: 23 }, (_, i) => `/gallery/img${i + 1}.jpg`),
+  ...Array.from({ length: 23 }, (_, i) => `/gallery/img${i + 1}.webp`),
 ];
 
 const Gallery = () => {

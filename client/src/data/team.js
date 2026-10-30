@@ -3,19 +3,19 @@ export const owners = [
     name: "Ankit Kumar",
     role: "Managing Director",
     bio: "Leads the strategic direction of Fly High Consultancy, ensuring every client gets honest, transparent and result-focused guidance for their abroad journey.",
-    image: "/ankit_kumar.jpg",
+    image: "/ankit_kumar.webp",
   },
   {
     name: "Tarsem Verma",
     role: "Managing Director",
     bio: "Oversees operations and partner relationships, focused on making the visa process simple and stress-free for students and travellers.",
-    image: "/tarsem_verma.jpg",
+    image: "/tarsem_verma.webp",
   },
   {
     name: "Rajan Sharma",
     role: "Managing Director",
     bio: "Drives client relations and quality standards, committed to personalised support from first enquiry to final departure.",
-    image: "/rajan_sharma.jpg",
+    image: "/rajan_sharma.webp",
   },
 ];
 

@@ -55,7 +55,7 @@ const Hero = () => {
       <div className="absolute right-[4%] top-1/2 -translate-y-1/2 w-[460px] hidden lg:block">
         <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
           <img
-            src="/hero.jpg"
+            src="/hero.webp"
             alt="Fly High Consultancy"
             className="w-full h-[340px] object-cover object-center"
           />
