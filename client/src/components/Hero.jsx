@@ -56,7 +56,7 @@ const Hero = () => {
         <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
           <img
             src="/hero.webp"
-            alt="Fly High Consultancy"
+            alt="Two Fly High Consultancy advisors at the front desk of the Pehowa office"
             className="w-full h-[340px] object-cover object-center"
           />
         </div>

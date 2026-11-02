@@ -51,7 +51,7 @@ const Navbar = () => {
           aria-label="Fly High Consultancy — go to home top"
           className="flex items-center gap-3 text-white font-display font-extrabold text-2xl md:text-3xl"
         >
-          <img src="/logo.webp" alt="Fly High Consultancy logo" className="h-14 w-14 md:h-16 md:w-16 object-contain" />
+          <img src="/logo.webp" alt="Fly High Consultancy logo with airplane emblem" className="h-14 w-14 md:h-16 md:w-16 object-contain" />
           <span className="leading-none">
             FLY <span className="text-sky">HIGH</span>
           </span>

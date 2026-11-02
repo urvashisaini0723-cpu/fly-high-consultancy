@@ -101,7 +101,7 @@ const Home = () => {
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10">
               <img
                 src="/hero.webp"
-                alt="Fly High Consultancy"
+                alt="Two Fly High Consultancy advisors at the front desk of the Pehowa office"
                 className="w-full h-[360px] object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent flex items-end p-6">
@@ -204,7 +204,7 @@ const Home = () => {
               >
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-sky to-navy text-white flex items-center justify-center text-2xl font-bold">
                   {o.image ? (
-                    <img src={o.image} alt={o.name} className="w-full h-full object-cover object-top" />
+                    <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} className="w-full h-full object-cover object-top" />
                   ) : (
                     o.name.charAt(0)
                   )}

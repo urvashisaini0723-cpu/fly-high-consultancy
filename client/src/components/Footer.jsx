@@ -19,7 +19,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 grid md:grid-cols-4 gap-10">
         <div>
           <div className="flex items-center gap-3 font-display font-extrabold text-2xl">
-            <img src="/logo.webp" alt="Fly High Consultancy logo" className="h-16 w-16 object-contain" />
+            <img src="/logo.webp" alt="Fly High Consultancy logo with airplane emblem" className="h-16 w-16 object-contain" />
             <span>FLY <span className="text-sky">HIGH</span></span>
           </div>
           <p className="mt-4 text-white/70 text-sm leading-relaxed">

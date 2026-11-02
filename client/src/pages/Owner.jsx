@@ -33,7 +33,7 @@ const Owner = () => {
             >
               <div className="md:[direction:ltr] aspect-[4/3] rounded-2xl overflow-hidden border border-sky/20 bg-gradient-to-br from-sky/30 to-navy/10 flex items-center justify-center text-navy/40">
                 {o.image ? (
-                  <img src={o.image} alt={o.name} className="w-full h-full object-cover object-top" />
+                  <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} className="w-full h-full object-cover object-top" />
                 ) : (
                   "[Add photo]"
                 )}
