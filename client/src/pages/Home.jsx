@@ -32,7 +32,7 @@ const studySteps = [
 ];
 
 const Home = () => {
-  useEffect(() => { document.title = "FLY HIGH CONSULTANCY | Your Journey Abroad Starts Here"; }, []);
+  useEffect(() => { document.title = "Fly High Consultancy | Study Abroad & Visa Experts in Pehowa"; }, []);
   return (
     <>
       <Hero />

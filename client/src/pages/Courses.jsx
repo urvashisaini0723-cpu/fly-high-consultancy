@@ -19,7 +19,7 @@ const faqs = [
 const Courses = () => {
   const [openFaq, setOpenFaq] = useState(null);
   const [openCourse, setOpenCourse] = useState(null);
-  useEffect(() => { document.title = "Courses | Fly High Consultancy"; }, []);
+  useEffect(() => { document.title = "Study Abroad & Training Courses | Fly High Consultancy"; }, []);
 
   return (
     <>

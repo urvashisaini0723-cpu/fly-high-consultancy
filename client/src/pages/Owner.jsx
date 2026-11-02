@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { FaQuoteLeft } from "react-icons/fa";
 
 const Owner = () => {
-  useEffect(() => { document.title = "Owner | Fly High Consultancy"; }, []);
+  useEffect(() => { document.title = "Meet the Leaders Behind Fly High | Fly High Consultancy"; }, []);
   return (
     <>
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white min-h-[50vh] flex items-center">

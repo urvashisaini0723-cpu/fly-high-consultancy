@@ -105,7 +105,7 @@ const galleryItems = [
 
 const Gallery = () => {
   const [activeIdx, setActiveIdx] = useState(null);
-  useEffect(() => { document.title = "Gallery | Fly High Consultancy"; }, []);
+  useEffect(() => { document.title = "Photo Gallery | Fly High Consultancy"; }, []);
 
   const close = () => setActiveIdx(null);
   const prev = (e) => { e?.stopPropagation(); setActiveIdx((i) => (i + galleryItems.length - 1) % galleryItems.length); };
