@@ -1,14 +1,51 @@
 import { useEffect } from "react";
 import SectionHeading from "../components/SectionHeading";
 import TeamCard from "../components/TeamCard";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { owners, team, ownerMessage } from "../data/team";
 import { motion } from "framer-motion";
 import { FaQuoteLeft } from "react-icons/fa";
+
+const BASE_URL = "https://fly-high-consultancy.vercel.app";
 
 const Owner = () => {
   useEffect(() => { document.title = "Meet the Leaders Behind Fly High | Fly High Consultancy"; }, []);
   return (
     <>
+      <SEO
+        title="Meet the Team | Fly High Consultancy Owners Pehowa"
+        description="Meet the leaders behind Fly High Consultancy Pehowa. Our managing directors and team provide honest study abroad & visa guidance with personalised support."
+        path="/owner"
+        schema={[
+          webPageSchema(
+            "/owner",
+            "Meet the Team - Fly High Consultancy Owners Pehowa",
+            "Meet the leaders behind Fly High Consultancy Pehowa. Our managing directors and team provide honest study abroad & visa guidance with personalised support."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Owner", path: "/owner" },
+          ]),
+          ...owners.map((o) => ({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: o.name,
+            jobTitle: o.role,
+            description: o.bio,
+            image: o.image ? `${BASE_URL}${o.image}` : null,
+            worksFor: {
+              "@type": "Organization",
+              name: "Fly High Consultancy",
+            },
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Pehowa",
+              addressRegion: "Kurukshetra",
+              addressCountry: "IN",
+            },
+          })),
+        ]}
+      />
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <p className="text-sky font-semibold tracking-widest uppercase text-sm">Home / Owner</p>
@@ -33,7 +70,7 @@ const Owner = () => {
             >
               <div className="md:[direction:ltr] aspect-[4/3] rounded-2xl overflow-hidden border border-sky/20 bg-gradient-to-br from-sky/30 to-navy/10 flex items-center justify-center text-navy/40">
                 {o.image ? (
-                  <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} className="w-full h-full object-cover object-top" />
+                  <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} width="400" height="300" loading="lazy" decoding="async" className="w-full h-full object-cover object-top" />
                 ) : (
                   "[Add photo]"
                 )}

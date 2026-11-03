@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import SectionHeading from "../components/SectionHeading";
 import ContactForm from "../components/ContactForm";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { motion } from "framer-motion";
 import { FiTarget, FiEye, FiHeart } from "react-icons/fi";
 
@@ -8,6 +9,22 @@ const About = () => {
   useEffect(() => { document.title = "About Us | Fly High Consultancy"; }, []);
   return (
     <>
+      <SEO
+        title="About Fly High Consultancy | Study Abroad Consultant Pehowa"
+        description="About Fly High Consultancy, the trusted study abroad & visa consultant in Pehowa, Kurukshetra. Honest guidance, document support and interview preparation for overseas education."
+        path="/about"
+        schema={[
+          webPageSchema(
+            "/about",
+            "About Fly High Consultancy - Study Abroad Consultant Pehowa",
+            "About Fly High Consultancy, the trusted study abroad & visa consultant in Pehowa, Kurukshetra. Honest guidance, document support and interview preparation for overseas education."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "About Us", path: "/about" },
+          ]),
+        ]}
+      />
       {/* hero */}
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white overflow-hidden min-h-[60vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 md:px-6">

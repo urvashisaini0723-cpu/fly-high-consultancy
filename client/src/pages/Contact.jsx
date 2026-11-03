@@ -1,14 +1,41 @@
 import { useEffect } from "react";
 import SectionHeading from "../components/SectionHeading";
 import ContactForm from "../components/ContactForm";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { motion } from "framer-motion";
 import { FiMapPin, FiPhone, FiMail, FiClock, FiInstagram, FiFacebook } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram, FaFacebookF } from "react-icons/fa";
+
+const BASE_URL = "https://fly-high-consultancy.vercel.app";
 
 const Contact = () => {
   useEffect(() => { document.title = "Contact Us | Fly High Consultancy"; }, []);
   return (
     <>
+      <SEO
+        title="Contact Fly High Consultancy Pehowa | Free Visa Consultation"
+        description="Contact Fly High Consultancy in Pehowa for study abroad & tourist visa guidance. Visit our office near New PNB Bank or call +91 93061 42129 for free consultation."
+        path="/contact"
+        schema={[
+          webPageSchema(
+            "/contact",
+            "Contact Fly High Consultancy Pehowa",
+            "Contact Fly High Consultancy in Pehowa for study abroad & tourist visa guidance. Visit our office near New PNB Bank or call +91 93061 42129 for free consultation."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Contact", path: "/contact" },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ContactPoint",
+            telephone: "+919306142129",
+            contactType: "customer service",
+            availableLanguage: ["English", "Hindi"],
+            areaServed: "Pehowa, Kurukshetra, Haryana",
+          },
+        ]}
+      />
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <p className="text-sky font-semibold tracking-widest uppercase text-sm">Home / Contact</p>

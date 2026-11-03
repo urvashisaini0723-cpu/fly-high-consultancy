@@ -40,3 +40,5 @@ desktop.ini
 coverage/
 *.local
 .dev-server.pid
+.vercel
+.env*

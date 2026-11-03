@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import SectionHeading from "../components/SectionHeading";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX } from "react-icons/fi";
+
+const BASE_URL = "https://fly-high-consultancy.vercel.app";
 
 // The 2nd Anniversary poster stays pinned first, as requested.
 const galleryItems = [
@@ -124,6 +127,33 @@ const Gallery = () => {
 
   return (
     <>
+      <SEO
+        title="Photo Gallery | Visa Success Stories Pehowa"
+        description="Photo gallery of Fly High Consultancy Pehowa. Student visa success stories, client celebrations, office events and approved visa documents from Canada, Australia, UK, USA & Europe."
+        path="/gallery"
+        schema={[
+          webPageSchema(
+            "/gallery",
+            "Photo Gallery - Fly High Consultancy Pehowa",
+            "Photo gallery of Fly High Consultancy Pehowa. Student visa success stories, client celebrations, office events and approved visa documents from Canada, Australia, UK, USA & Europe."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Gallery", path: "/gallery" },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ImageGallery",
+            name: "Fly High Consultancy Photo Gallery",
+            description: "Visa success stories, client celebrations and office events from Fly High Consultancy Pehowa.",
+            image: galleryItems.map((item) => ({
+              "@type": "ImageObject",
+              contentUrl: `${BASE_URL}${item.src}`,
+              name: item.alt,
+            })),
+          },
+        ]}
+      />
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <p className="text-sky font-semibold tracking-widest uppercase text-sm">Home / Gallery</p>
@@ -152,7 +182,10 @@ const Gallery = () => {
                 <img
                   src={src}
                   alt={alt}
+                  width="400"
+                  height="500"
                   loading="lazy"
+                  decoding="async"
                   className="w-full h-auto"
                 />
               </motion.button>
@@ -174,6 +207,10 @@ const Gallery = () => {
               key={activeIdx}
               src={galleryItems[activeIdx].src}
               alt={galleryItems[activeIdx].alt}
+              width="800"
+              height="800"
+              loading="lazy"
+              decoding="async"
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}

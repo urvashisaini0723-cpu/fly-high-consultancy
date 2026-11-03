@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import SectionHeading from "../components/SectionHeading";
 import ContactForm from "../components/ContactForm";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { courses } from "../data/courses";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "react-icons/fi";
 import { FiChevronDown } from "react-icons/fi";
+
+const BASE_URL = "https://fly-high-consultancy.vercel.app";
 
 const learningSteps = ["Enroll", "Learn", "Practice", "Mock Test", "Ready"];
 
@@ -23,6 +26,35 @@ const Courses = () => {
 
   return (
     <>
+      <SEO
+        title="IELTS & PTE Coaching Pehowa | Language Training Courses"
+        description="IELTS, PTE & spoken English coaching in Pehowa. Affordable language training with mock tests, interview preparation and study abroad support. Enquire now."
+        path="/courses"
+        schema={[
+          webPageSchema(
+            "/courses",
+            "IELTS & PTE Coaching Pehowa - Language Training Courses",
+            "IELTS, PTE & spoken English coaching in Pehowa. Affordable language training with mock tests, interview preparation and study abroad support. Enquire now."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Courses", path: "/courses" },
+          ]),
+          ...courses.map((c) => ({
+            "@context": "https://schema.org",
+            "@type": "Course",
+            name: c.title,
+            description: c.desc,
+            provider: {
+              "@type": "Organization",
+              name: "Fly High Consultancy",
+            },
+            url: `${BASE_URL}/courses`,
+            educationalLevel: "Intermediate",
+            coursePrerequisites: "None",
+          })),
+        ]}
+      />
       <section className="relative pt-32 pb-20 bg-gradient-to-b from-navy to-sky/20 text-white min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <p className="text-sky font-semibold tracking-widest uppercase text-sm">Home / Courses</p>

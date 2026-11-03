@@ -57,6 +57,11 @@ const Hero = () => {
           <img
             src="/hero.webp"
             alt="Two Fly High Consultancy advisors at the front desk of the Pehowa office"
+            width="460"
+            height="340"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="w-full h-[340px] object-cover object-center"
           />
         </div>

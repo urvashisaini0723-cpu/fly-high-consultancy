@@ -5,6 +5,7 @@ import ServiceCard from "../components/ServiceCard";
 import StatsCounter from "../components/StatsCounter";
 import CountryCard from "../components/CountryCard";
 import ContactForm from "../components/ContactForm";
+import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { services, stats } from "../data/services";
 import { countries } from "../data/countries";
 import { owners } from "../data/team";
@@ -35,6 +36,21 @@ const Home = () => {
   useEffect(() => { document.title = "Fly High Consultancy | Study Abroad & Visa Experts in Pehowa"; }, []);
   return (
     <>
+      <SEO
+        title="Fly High Consultancy | Study Abroad & Visa Experts in Pehowa"
+        description="Best study abroad & tourist visa consultancy in Pehowa. Canada, Australia, UK, USA, New Zealand & Europe visas, IELTS/PTE coaching, interview guidance & free consultation."
+        path="/"
+        schema={[
+          webPageSchema(
+            "/",
+            "Fly High Consultancy - Study Abroad & Visa Experts in Pehowa",
+            "Best study abroad & tourist visa consultancy in Pehowa. Canada, Australia, UK, USA, New Zealand & Europe visas, IELTS/PTE coaching, interview guidance & free consultation."
+          ),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+          ]),
+        ]}
+      />
       <Hero />
 
       {/* Stats */}
@@ -102,6 +118,10 @@ const Home = () => {
               <img
                 src="/hero.webp"
                 alt="Two Fly High Consultancy advisors at the front desk of the Pehowa office"
+                width="600"
+                height="360"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[360px] object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent flex items-end p-6">
@@ -204,7 +224,7 @@ const Home = () => {
               >
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-sky to-navy text-white flex items-center justify-center text-2xl font-bold">
                   {o.image ? (
-                    <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} className="w-full h-full object-cover object-top" />
+                    <img src={o.image} alt={`${o.name}, ${o.role} at Fly High Consultancy`} width="64" height="64" loading="lazy" decoding="async" className="w-full h-full object-cover object-top" />
                   ) : (
                     o.name.charAt(0)
                   )}
