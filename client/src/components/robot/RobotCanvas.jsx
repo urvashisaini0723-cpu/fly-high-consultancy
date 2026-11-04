@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy, useEffect, useState } from "react";
+import { Component, Suspense, lazy, useEffect, useRef, useState } from "react";
 import RobotFallback from "./RobotFallback";
 
 const LazyRobotScene = lazy(() => import("./RobotScene"));
@@ -82,26 +82,23 @@ const RobotCanvas = ({
     setSupported(detectWebGL() && !shouldUseStaticRobot());
   }, []);
 
-  /* Defer the heavy three.js chunk until the page has painted and is idle,
-     so it never competes with the first render of the site. */
+  /* The 3D scene (~900 kB of three.js + a per-frame render loop) must never
+     run unless the visitor actually engages with the robot. We listen for the
+     first pointer/focus/tap on the wrapper and only then mount the scene.
+     Lighthouse and unengaged visitors get the lightweight static robot. */
+  const wrapperRef = useRef(null);
   useEffect(() => {
     if (!supported) return undefined;
-
-    let timer;
-    const schedule = () => {
-      if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(() => setShouldLoad(true), { timeout: 1200 });
-      } else {
-        timer = window.setTimeout(() => setShouldLoad(true), 400);
-      }
-    };
-
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-
+    const el = wrapperRef.current;
+    if (!el) return undefined;
+    const upgrade = () => setShouldLoad(true);
+    el.addEventListener("pointerenter", upgrade, { once: true, passive: true });
+    el.addEventListener("pointerdown", upgrade, { once: true, passive: true });
+    el.addEventListener("focusin", upgrade, { once: true });
     return () => {
-      window.removeEventListener("load", schedule);
-      if (timer) window.clearTimeout(timer);
+      el.removeEventListener("pointerenter", upgrade);
+      el.removeEventListener("pointerdown", upgrade);
+      el.removeEventListener("focusin", upgrade);
     };
   }, [supported]);
 
@@ -112,7 +109,7 @@ const RobotCanvas = ({
   }
 
   return (
-    <div className={className} aria-hidden="true">
+    <div ref={wrapperRef} className={className} aria-hidden="true">
       <div className="relative h-full w-full">
         {/* lightweight first paint / failure state */}
         {!mounted && (
