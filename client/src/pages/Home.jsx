@@ -102,7 +102,7 @@ const Home = () => {
                   transition={{ duration: 0.4, delay: i * 0.1 }}
                   className="flex items-center gap-3 text-white/90"
                 >
-                  <FiCheckCircle className="text-teal text-2xl shrink-0" />
+                  <FiCheckCircle className="text-[#0F766E] text-2xl shrink-0" aria-hidden="true" />
                   <span className="text-lg">{d}</span>
                 </motion.li>
               ))}
@@ -180,7 +180,7 @@ const Home = () => {
         <div className="relative">
           <div className="flex gap-6 animate-marquee w-max">
             {[...countries, ...countries].map((c, i) => (
-              <CountryCard key={i} country={c} index={i} />
+              <CountryCard key={i} country={c} index={i} decorative={i >= countries.length} />
             ))}
           </div>
         </div>

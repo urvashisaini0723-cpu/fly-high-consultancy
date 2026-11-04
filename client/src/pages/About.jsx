@@ -70,7 +70,7 @@ const About = () => {
             className="bg-gradient-to-br from-navy to-sky rounded-2xl p-10 text-white"
           >
             <FiTarget className="text-4xl text-orange mb-4" />
-            <h3 className="font-display text-3xl font-bold">Our Mission</h3>
+            <h2 className="font-display text-3xl font-bold">Our Mission</h2>
             <p className="mt-4 text-white/85 leading-relaxed">
               To make going abroad accessible, clear and stress-free through honest guidance and meticulous document support.
             </p>
@@ -83,7 +83,7 @@ const About = () => {
             className="bg-gradient-to-br from-orange to-gold rounded-2xl p-10 text-white"
           >
             <FiEye className="text-4xl text-white mb-4" />
-            <h3 className="font-display text-3xl font-bold">Our Vision</h3>
+            <h2 className="font-display text-3xl font-bold">Our Vision</h2>
             <p className="mt-4 text-white/95 leading-relaxed">
               To be the most trusted study-abroad and visa consultancy in the region, helping thousands build global futures.
             </p>
@@ -108,7 +108,7 @@ const About = () => {
                 <div className="w-12 h-12 mx-auto rounded-full bg-sky/20 text-sky font-bold flex items-center justify-center">
                   {i + 1}
                 </div>
-                <h4 className="mt-4 font-display font-bold text-navy">{s}</h4>
+                <h3 className="mt-4 font-display font-bold text-navy">{s}</h3>
               </motion.div>
             ))}
           </div>
@@ -134,7 +134,7 @@ const About = () => {
                 className="bg-cloud rounded-2xl p-8 border border-navy/5"
               >
                 <FiHeart className="text-3xl text-orange mb-3" />
-                <h4 className="font-display text-xl font-bold text-navy">{v.t}</h4>
+                <h3 className="font-display text-xl font-bold text-navy">{v.t}</h3>
                 <p className="mt-2 text-navy/70">{v.d}</p>
               </motion.div>
             ))}

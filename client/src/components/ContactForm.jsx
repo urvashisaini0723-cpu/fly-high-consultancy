@@ -97,10 +97,11 @@ const ContactForm = ({ compact = false }) => {
           >
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-navy mb-1">Full Name</label>
+                <label htmlFor="contact-name" className="block text-sm font-medium text-navy mb-1">Full Name</label>
                 <div className="relative">
-                  <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+                  <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" aria-hidden="true" />
                   <input
+                    id="contact-name"
                     type="text"
                     name="name"
                     value={form.name}
@@ -112,10 +113,11 @@ const ContactForm = ({ compact = false }) => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy mb-1">Phone</label>
+                <label htmlFor="contact-phone" className="block text-sm font-medium text-navy mb-1">Phone</label>
                 <div className="relative">
-                  <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+                  <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" aria-hidden="true" />
                   <input
+                    id="contact-phone"
                     type="tel"
                     name="phone"
                     value={form.phone}
@@ -128,10 +130,11 @@ const ContactForm = ({ compact = false }) => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1">Email</label>
+              <label htmlFor="contact-email" className="block text-sm font-medium text-navy mb-1">Email</label>
               <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" />
+                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/40" aria-hidden="true" />
                 <input
+                  id="contact-email"
                   type="email"
                   name="email"
                   value={form.email}
@@ -143,8 +146,9 @@ const ContactForm = ({ compact = false }) => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1">Select Your Interest</label>
+              <label htmlFor="contact-interest" className="block text-sm font-medium text-navy mb-1">Select Your Interest</label>
               <select
+                id="contact-interest"
                 name="interest"
                 value={form.interest}
                 onChange={onChange}
@@ -160,10 +164,11 @@ const ContactForm = ({ compact = false }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1">Message</label>
+              <label htmlFor="contact-message" className="block text-sm font-medium text-navy mb-1">Message</label>
               <div className="relative">
-                <FiMessageSquare className="absolute left-3 top-3 text-navy/40" />
+                <FiMessageSquare className="absolute left-3 top-3 text-navy/40" aria-hidden="true" />
                 <textarea
+                  id="contact-message"
                   name="message"
                   value={form.message}
                   onChange={onChange}
@@ -191,7 +196,7 @@ const ContactForm = ({ compact = false }) => {
                 "Sending..."
               ) : (
                 <>
-                  Send Enquiry <FiSend />
+                  Send Enquiry <FiSend aria-hidden="true" />
                 </>
               )}
             </motion.button>

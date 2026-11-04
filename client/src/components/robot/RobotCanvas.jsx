@@ -48,6 +48,21 @@ class RobotErrorBoundary extends Component {
   }
 }
 
+/* True when the device should get the lightweight static robot instead of the
+   ~900 kB three.js scene: phones/small tablets, data-saver or very slow links.
+   Desktop still gets the full 3D + breathing animation. */
+const shouldUseStaticRobot = () => {
+  if (typeof window === "undefined") return false;
+  if (window.innerWidth < 768) return true;
+  const conn = navigator.connection;
+  if (conn?.saveData === true) return true;
+  const et = conn?.effectiveType;
+  if (et && (et === "2g" || et === "slow-2g" || et === "3g")) return true;
+  // very weak machines: static robot instead of a 900 kB WebGL scene
+  if ((navigator.hardwareConcurrency ?? 8) <= 4) return true;
+  return false;
+};
+
 /* ------------------------------------------------------------------
    Public component
 ------------------------------------------------------------------ */
@@ -64,7 +79,7 @@ const RobotCanvas = ({
 
   /* WebGL check only runs in the browser */
   useEffect(() => {
-    setSupported(detectWebGL());
+    setSupported(detectWebGL() && !shouldUseStaticRobot());
   }, []);
 
   /* Defer the heavy three.js chunk until the page has painted and is idle,

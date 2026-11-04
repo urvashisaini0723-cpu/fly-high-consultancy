@@ -39,6 +39,18 @@ function apiProxyGuard() {
 
 export default defineConfig({
   plugins: [react(), apiProxyGuard()],
+  build: {
+    // Split the big, rarely-changing vendor code so returning visitors get
+    // fast repeat loads (better long-term caching, no runtime benefit).
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "motion-vendor": ["framer-motion"],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {

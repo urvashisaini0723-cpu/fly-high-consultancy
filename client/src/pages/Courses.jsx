@@ -91,9 +91,9 @@ const Courses = () => {
                       <Icon />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-display text-2xl font-bold text-navy">{c.title}</h3>
+                      <h2 className="font-display text-2xl font-bold text-navy">{c.title}</h2>
                       <p className="mt-1 text-navy/70">{c.desc}</p>
-                      <p className="mt-2 text-sky font-semibold text-sm">
+                      <p className="mt-2 text-[#0284C7] font-semibold text-sm">
                         {isOpen ? "Hide details ▲" : "Click to view modules ▼"}
                       </p>
                     </div>
@@ -108,11 +108,11 @@ const Courses = () => {
                         className="overflow-hidden"
                       >
                         <div className="px-8 pb-6">
-                          <h4 className="font-display font-bold text-navy mb-3">Modules / What you'll learn</h4>
+                          <h3 className="font-display font-bold text-navy mb-3">Modules / What you'll learn</h3>
                           <ul className="space-y-2">
                             {c.learn.map((l) => (
                               <li key={l} className="flex items-start gap-2 text-sm text-navy/80">
-                                <span className="text-teal mt-0.5">✓</span>
+                                <span className="text-[#0F766E] mt-0.5">✓</span>
                                 {l}
                               </li>
                             ))}
@@ -177,7 +177,7 @@ const Courses = () => {
                 <div className="px-6 py-3 rounded-full bg-white/10 border border-sky/30 backdrop-blur font-semibold">
                   {s}
                 </div>
-                {i < learningSteps.length - 1 && <span className="text-sky text-2xl">→</span>}
+                {i < learningSteps.length - 1 && <span className="text-[#0284C7] text-2xl">→</span>}
               </motion.div>
             ))}
           </div>

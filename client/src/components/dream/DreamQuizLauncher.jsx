@@ -26,7 +26,7 @@ const DreamQuizLauncher = () => {
     <motion.button
       type="button"
       onClick={() => openQuiz()}
-      aria-label="Open the Find Your Dream Country quiz"
+      aria-label="FREE Dream Country Quiz"
       aria-haspopup="dialog"
       initial={{ opacity: 0, y: 24, scale: 0.6 }}
       animate={

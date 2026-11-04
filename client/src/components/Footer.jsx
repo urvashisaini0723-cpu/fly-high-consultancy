@@ -39,7 +39,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 className="font-display font-bold text-lg mb-4 text-sky">Quick Links</h4>
+          <h3 className="font-display font-bold text-lg mb-4 text-sky">Quick Links</h3>
           <ul className="space-y-2 text-white/70 text-sm">
             {[
               ["/", "Home"],
@@ -63,7 +63,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 className="font-display font-bold text-lg mb-4 text-sky">Contact</h4>
+          <h3 className="font-display font-bold text-lg mb-4 text-sky">Contact</h3>
           <ul className="space-y-3 text-white/70 text-sm">
             <li className="flex gap-2">
               <FiMapPin className="mt-0.5 text-orange shrink-0" />
@@ -85,7 +85,7 @@ const Footer = () => {
         </div>
 
         <div>
-          <h4 className="font-display font-bold text-lg mb-4 text-sky">Office Hours</h4>
+          <h3 className="font-display font-bold text-lg mb-4 text-sky">Office Hours</h3>
           <p className="text-white/70 text-sm">Monday to Saturday</p>
           <p className="text-white font-semibold">10:00 AM – 7:00 PM</p>
           <p className="mt-2 text-white/70 text-sm">Sunday: Closed</p>

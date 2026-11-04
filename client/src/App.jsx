@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
@@ -13,11 +13,13 @@ import { DreamQuizProvider } from "./context/DreamQuizContext";
 import DreamCountryQuiz from "./components/dream/DreamCountryQuiz";
 import DreamQuizLauncher from "./components/dream/DreamQuizLauncher";
 import Home from "./pages/Home";
-import Owner from "./pages/Owner";
-import Courses from "./pages/Courses";
-import Gallery from "./pages/Gallery";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
+
+// Route-level code splitting: only Home ships in the initial bundle.
+const Owner = lazy(() => import("./pages/Owner"));
+const Courses = lazy(() => import("./pages/Courses"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -42,15 +44,18 @@ const App = () => {
     if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true });
   }, [location.pathname]);
 
+  // The splash never blocks content: the site renders immediately and the
+  // overlay fades out (LCP/FCP are measured from content paint, not the splash).
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1500);
+    const t = setTimeout(() => setLoading(false), 900);
     return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
+    const prefersReduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const lenis = new Lenis({
-      duration: 1.1,
-      smoothWheel: true,
+      duration: prefersReduced ? 0 : 1.1,
+      smoothWheel: !prefersReduced,
     });
     (window).__lenis = lenis;
     function raf(time) {
@@ -61,13 +66,14 @@ const App = () => {
     return () => lenis.destroy();
   }, []);
 
-  if (loading) return <Loader />;
-
   return (
     <DreamQuizProvider>
+      {/* Splash overlays the content briefly, then fades — it never gates it. */}
+      <AnimatePresence>{loading && <Loader />}</AnimatePresence>
       <Navbar />
       <main className="pt-0">
         <AnimatePresence mode="wait">
+          <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
           <Routes location={location} key={location.pathname}>
             <Route
               path="/"
@@ -119,6 +125,7 @@ const App = () => {
               }
             />
           </Routes>
+          </Suspense>
           </AnimatePresence>
         </main>
         <Footer />

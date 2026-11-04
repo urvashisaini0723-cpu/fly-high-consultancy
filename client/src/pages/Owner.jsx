@@ -77,7 +77,7 @@ const Owner = () => {
               </div>
               <div className="md:[direction:ltr]">
                 <h3 className="font-display text-4xl font-bold text-navy">{o.name}</h3>
-                <p className="text-orange font-semibold mt-1">{o.role}</p>
+                <p className="text-[#C2410C] font-semibold mt-1">{o.role}</p>
                 <p className="mt-4 text-navy/70 leading-relaxed text-lg">{o.bio}</p>
               </div>
             </motion.div>
@@ -104,7 +104,7 @@ const Owner = () => {
           <p className="font-display text-2xl md:text-3xl italic leading-relaxed">
             "{ownerMessage}"
           </p>
-          <p className="mt-6 text-orange font-semibold">— The Founders, Fly High Consultancy</p>
+          <p className="mt-6 text-[#C2410C] font-semibold">— The Founders, Fly High Consultancy</p>
         </div>
       </section>
 

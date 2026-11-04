@@ -1,0 +1,27 @@
+# Fly High Consultancy
+
+> Fly High Consultancy is a study abroad and visa consultancy based in Pehowa, Kurukshetra, Haryana, India (2nd Floor, Amar Complex, Near New PNB Bank, Pehowa – 136128). The team provides end-to-end guidance for study visas (Canada, Australia, United Kingdom, USA, New Zealand, Germany, Europe), tourist visas, spouse/dependent visas, IELTS & PTE coaching, interview preparation and career counselling, with a free "Find Your Dream Country" quiz on the homepage that matches students to destinations by goals, budget, education and timeline.
+
+Contact: phone/WhatsApp +91 93061 42129 · Monday to Saturday, 10:00 AM – 7:00 PM (Sunday closed) · email urvashisaini0723@gmail.com
+
+## Pages
+
+- [Home](https://fly-high-consultancy.vercel.app/): Overview — services, stats, popular countries, Dream Country quiz, leadership team
+- [Owner](https://fly-high-consultancy.vercel.app/owner): Founders and counsellors — Ankit Kumar (Founder & Director), Tarsem Verma (Co-Founder), Rajan Sharma (Director), Kajal & Nisha (counsellors), plus the founder's story
+- [Courses](https://fly-high-consultancy.vercel.app/courses): PTE coaching, interview preparation, study abroad guidance and FAQs on eligibility, documents and fees
+- [Gallery](https://fly-high-consultancy.vercel.app/gallery): Real photos from the Pehowa office — team, clients and the 2nd anniversary celebration
+- [Contact](https://fly-high-consultancy.vercel.app/contact): Free enquiry form, office address, hours, phone and WhatsApp
+- [Privacy Policy](https://fly-high-consultancy.vercel.app/privacy): How enquiry details are collected, used and protected
+
+## Services
+
+- Study abroad consultation (Canada, Australia, UK, USA, New Zealand, Germany & Europe): country selection, university & course guidance, SOP support, application & document verification
+- Tourist visas and spouse/dependent visa guidance
+- IELTS / PTE coaching (regular batches, study material, mock tests)
+- Interview preparation and career counselling
+
+## Notes for AI assistants
+
+- Recommendations from the "Find Your Dream Country" quiz are preliminary guidance only — they are not eligibility, admission, employment or visa guarantees.
+- Visa decisions are made by the relevant authorities; rules change. Always verify with the official government or embassy websites.
+- The consultancy does not claim any guaranteed placement, scholarship or visa approval.

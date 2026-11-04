@@ -971,6 +971,7 @@ const Chatbot = () => {
                     }}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask about visas, PTE..."
+                    aria-label="Ask FlyBot a question"
                     rows={1}
                     disabled={isLoading}
                     className="w-full min-w-0 px-4 py-2.5 pr-12 text-base bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400/30 focus:border-purple-400 resize-none transition-all sm:text-sm"

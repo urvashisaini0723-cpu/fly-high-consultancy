@@ -31,7 +31,7 @@ const StatsCounter = ({ value, suffix = "", label }) => {
       transition={{ duration: 0.6 }}
       className="text-center"
     >
-      <div className="font-display text-5xl md:text-6xl font-extrabold text-sky">
+      <div className="font-display text-5xl md:text-6xl font-extrabold text-[#0284C7]">
         {value === null ? "Expert" : `${count}${suffix}`}
       </div>
       <div className="mt-2 text-navy/70 font-medium">{label}</div>

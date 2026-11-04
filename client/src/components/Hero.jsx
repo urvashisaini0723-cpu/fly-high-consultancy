@@ -61,7 +61,7 @@ const Hero = () => {
             height="340"
             loading="eager"
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
             className="w-full h-[340px] object-cover object-center"
           />
         </div>

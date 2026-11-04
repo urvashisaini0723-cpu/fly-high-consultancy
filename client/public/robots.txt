@@ -1,0 +1,6 @@
+# Fly High Consultancy — robots.txt
+# Allow full crawling of the public site.
+User-agent: *
+Allow: /
+
+Sitemap: https://fly-high-consultancy.vercel.app/sitemap.xml

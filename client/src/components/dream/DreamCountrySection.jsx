@@ -93,8 +93,8 @@ const DreamCountrySection = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600">Potential Match</span>
-                  <span className="text-[9px] font-semibold text-slate-400">{[92, 84, 78][i]}%</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700">Potential Match</span>
+                  <span className="text-[9px] font-semibold text-slate-600">{[92, 84, 78][i]}%</span>
                 </div>
               </motion.div>
             );

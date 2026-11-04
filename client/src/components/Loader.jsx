@@ -2,7 +2,13 @@ import { motion } from "framer-motion";
 
 const Loader = () => {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy">
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-navy"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading Fly High Consultancy"
+      exit={{ opacity: 0, transition: { duration: 0.45 } }}
+    >
       <div className="flex flex-col items-center gap-6">
         <svg viewBox="0 0 200 80" className="w-56 h-24" aria-hidden="true">
           <motion.path
@@ -34,7 +40,7 @@ const Loader = () => {
           FLY HIGH...
         </motion.p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

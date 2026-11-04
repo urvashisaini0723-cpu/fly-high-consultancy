@@ -29,7 +29,7 @@ const TeamCard = ({ member, flip = false }) => {
           <div className="w-24 h-24 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-4xl font-display font-bold mb-4">
             {member.name.charAt(0)}
           </div>
-          <h4 className="font-display text-xl font-bold">{member.name}</h4>
+          <h3 className="font-display text-xl font-bold">{member.name}</h3>
           <p className="text-white/80 text-sm mt-1">{member.role}</p>
         </div>
         {/* Back */}
@@ -37,8 +37,8 @@ const TeamCard = ({ member, flip = false }) => {
           className="absolute inset-0 rounded-2xl bg-white border border-sky/20 p-6 flex flex-col justify-center backface-hidden"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
-          <h4 className="font-display text-xl font-bold text-navy">{member.name}</h4>
-          <p className="text-orange text-sm font-semibold">{member.role}</p>
+          <h3 className="font-display text-xl font-bold text-navy">{member.name}</h3>
+          <p className="text-[#C2410C] text-sm font-semibold">{member.role}</p>
           <p className="mt-3 text-navy/70 text-sm leading-relaxed">{member.desc}</p>
         </div>
       </motion.div>

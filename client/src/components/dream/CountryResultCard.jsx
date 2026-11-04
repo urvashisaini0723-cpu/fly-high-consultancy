@@ -105,7 +105,7 @@ const CountryResultCard = ({ match, index, onExplore }) => {
           <ul className="mt-1.5 space-y-1">
             {reasons.slice(0, 3).map((r) => (
               <li key={r} className="flex items-start gap-1.5 text-[11px] leading-snug text-slate-700">
-                <FiCheckCircle className="mt-0.5 flex-shrink-0 text-teal" size={11} aria-hidden="true" />
+                <FiCheckCircle className="mt-0.5 flex-shrink-0 text-[#0F766E]" size={11} aria-hidden="true" />
                 <span>{r}</span>
               </li>
             ))}

@@ -58,37 +58,37 @@ const Contact = () => {
             <SectionHeading title="Contact details" align="left" />
             <div className="space-y-5">
               <div className="flex gap-3 items-start">
-                <FiMapPin className="text-orange text-2xl shrink-0 mt-1" />
+                <FiMapPin className="text-[#C2410C] text-2xl shrink-0 mt-1" aria-hidden="true" />
                 <div>
                   <div className="font-semibold text-navy">Address</div>
                   <p className="text-navy/70">2nd Floor, Amar Complex, Near New PNB Bank, Pehowa, Kurukshetra, Haryana – 136128</p>
                 </div>
               </div>
               <div className="flex gap-3 items-start">
-                <FiPhone className="text-orange text-2xl shrink-0 mt-1" />
+                <FiPhone className="text-[#C2410C] text-2xl shrink-0 mt-1" aria-hidden="true" />
                 <div>
                   <div className="font-semibold text-navy">Phone</div>
-                  <a href="tel:+919306142129" className="text-sky hover:underline">+91 93061 42129</a>
+                  <a href="tel:+919306142129" className="text-[#0284C7] hover:underline">+91 93061 42129</a>
                 </div>
               </div>
               <div className="flex gap-3 items-start">
-                <FiMail className="text-orange text-2xl shrink-0 mt-1" />
+                <FiMail className="text-[#C2410C] text-2xl shrink-0 mt-1" aria-hidden="true" />
                 <div>
                   <div className="font-semibold text-navy">Email</div>
-                  <a href="mailto:urvashisaini0723@gmail.com" className="text-sky hover:underline">urvashisaini0723@gmail.com</a>
+                  <a href="mailto:urvashisaini0723@gmail.com" className="text-[#0284C7] hover:underline">urvashisaini0723@gmail.com</a>
                 </div>
               </div>
               <div className="flex gap-3 items-start">
                 <FaWhatsapp className="text-[#25D366] text-2xl shrink-0 mt-1" />
                 <div>
                   <div className="font-semibold text-navy">WhatsApp</div>
-                  <a href="https://wa.me/919306142129" target="_blank" rel="noopener noreferrer" className="text-sky hover:underline">
+                  <a href="https://wa.me/919306142129" target="_blank" rel="noopener noreferrer" className="text-[#0284C7] hover:underline">
                     Chat on WhatsApp
                   </a>
                 </div>
               </div>
               <div className="flex gap-3 items-start">
-                <FiClock className="text-orange text-2xl shrink-0 mt-1" />
+                <FiClock className="text-[#C2410C] text-2xl shrink-0 mt-1" aria-hidden="true" />
                 <div>
                   <div className="font-semibold text-navy">Office Hours</div>
                   <p className="text-navy/70">Monday – Saturday, 10:00 AM – 7:00 PM · Sunday closed</p>
@@ -109,7 +109,7 @@ const Contact = () => {
 
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <h3 className="font-display text-2xl font-bold text-navy mb-4">Find us on the map</h3>
+          <h2 className="font-display text-2xl font-bold text-navy mb-4">Find us on the map</h2>
           <div className="w-full h-96 rounded-2xl overflow-hidden shadow-lg border border-sky/20">
             <iframe
               title="Fly High Consultancy map"

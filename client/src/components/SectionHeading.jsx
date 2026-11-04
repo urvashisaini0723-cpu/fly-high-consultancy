@@ -10,7 +10,7 @@ const SectionHeading = ({ eyebrow, title, subtitle, align = "center", light = fa
       className={`mb-12 ${align === "center" ? "text-center" : "text-left"}`}
     >
       {eyebrow && (
-        <span className="inline-block text-orange font-semibold uppercase tracking-widest text-sm mb-3">
+        <span className={`inline-block font-semibold uppercase tracking-widest text-sm mb-3 ${light ? "text-gold" : "text-[#C2410C]"}`}>
           {eyebrow}
         </span>
       )}
