@@ -41,6 +41,11 @@ const GRAD_YEARS = Array.from({ length: 46 }, (_, i) => CURRENT_YEAR + 6 - i); /
 
 const inputClass =
   "w-full rounded-xl border border-navy/20 bg-white px-3.5 py-2.5 text-sm text-navy outline-none transition-all placeholder:text-navy/35 focus:border-sky focus:ring-2 focus:ring-sky/30";
+// Same styling as inputClass but WITHOUT w-full — must not fight the w-[7.5rem]
+// utility on the phone row's country-code select (w-full wins on source order and
+// squeezes the number input to zero width).
+const selectClass =
+  "rounded-xl border border-navy/20 bg-white px-2 py-2.5 text-sm text-navy outline-none transition-all focus:border-sky focus:ring-2 focus:ring-sky/30";
 const labelClass = "mb-1 block text-[11px] font-semibold uppercase tracking-wide text-sky/80";
 const errorClass = "mt-1 text-[11px] font-medium text-rose-600";
 
@@ -234,7 +239,7 @@ const CounsellingForm = ({ answers, recommendation, focusCountry, onSuccess, onB
                 aria-label="Country code"
                 value={form.countryCode}
                 onChange={(e) => set("countryCode", e.target.value)}
-                className={`${inputClass} w-[7.5rem] flex-shrink-0 px-2`}
+                className={`${selectClass} w-[7.5rem] flex-shrink-0`}
               >
                 {COUNTRY_CODES.map((c) => (
                   <option key={c.code} value={c.code}>{c.label}</option>
