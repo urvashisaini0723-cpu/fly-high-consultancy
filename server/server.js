@@ -97,6 +97,17 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Lightweight ping endpoint for uptime monitors (UptimeRobot, cron-job.org, etc).
+// Deliberately tiny: no DB, no auth, no rate limiter — just proves the API is up.
+// Use it to keep the free-tier instance from sleeping: https://fly-high-api.onrender.com/ping
+app.get("/ping", (_req, res) => {
+  res.status(200).json({ ok: true, message: "pong" });
+});
+
+app.head("/ping", (_req, res) => {
+  res.status(200).end();
+});
+
 // 404 handler
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
