@@ -1,5 +1,5 @@
 import { useEffect, useState, lazy, Suspense } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Lenis from "lenis";
 import Navbar from "./components/Navbar";
@@ -24,19 +24,11 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const App = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
-  // On hard refresh (F5) always open the Home page, no matter which page you were on
-  // (privacy policy is exempt — deep links to it must survive refresh)
-  useEffect(() => {
-    if (
-      location.key === "default" &&
-      window.location.pathname !== "/" &&
-      window.location.pathname !== "/privacy"
-    ) {
-      navigate("/", { replace: true });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Deep links (SEO crawlers, shared links, new tabs) must land on the real
+  // page — no forced redirect to Home. [The old "F5 always Home" redirect
+  // made every subpage render the homepage for crawlers and shared links.
+  // To restore it, navigate('/', { replace: true }) here.]
 
   // Scroll to top on route change
   useEffect(() => {
