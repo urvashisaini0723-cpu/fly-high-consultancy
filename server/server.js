@@ -6,6 +6,7 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const contactRoutes = require("./routes/contact");
 const chatbotRoutes = require("./routes/chatbot");
+const counsellingRoutes = require("./routes/counselling");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,11 +75,18 @@ app.use(
   limiter(10, 15, "Too many submissions. Please wait before trying again.")
 );
 
+// Counselling form: strict
+app.use(
+  "/api/counselling",
+  limiter(8, 15, "Too many submissions. Please wait before trying again.")
+);
+
 // Everything else
 app.use("/api", limiter(300, 15, "Too many requests, please try again later."));
 
 app.use("/api/contact", contactRoutes);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/counselling", counsellingRoutes);
 
 // Health check
 app.get("/api/health", (_req, res) => {

@@ -9,11 +9,15 @@ import ScrollToTop from "./components/ScrollToTop";
 import Chatbot from "./components/Chatbot";
 import Loader from "./components/Loader";
 import PageTransition from "./components/PageTransition";
+import { DreamQuizProvider } from "./context/DreamQuizContext";
+import DreamCountryQuiz from "./components/dream/DreamCountryQuiz";
+import DreamQuizLauncher from "./components/dream/DreamQuizLauncher";
 import Home from "./pages/Home";
 import Owner from "./pages/Owner";
 import Courses from "./pages/Courses";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -21,8 +25,13 @@ const App = () => {
   const navigate = useNavigate();
 
   // On hard refresh (F5) always open the Home page, no matter which page you were on
+  // (privacy policy is exempt — deep links to it must survive refresh)
   useEffect(() => {
-    if (location.key === "default" && window.location.pathname !== "/") {
+    if (
+      location.key === "default" &&
+      window.location.pathname !== "/" &&
+      window.location.pathname !== "/privacy"
+    ) {
       navigate("/", { replace: true });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -55,7 +64,7 @@ const App = () => {
   if (loading) return <Loader />;
 
   return (
-    <>
+    <DreamQuizProvider>
       <Navbar />
       <main className="pt-0">
         <AnimatePresence mode="wait">
@@ -101,6 +110,14 @@ const App = () => {
                 </PageTransition>
               }
             />
+            <Route
+              path="/privacy"
+              element={
+                <PageTransition>
+                  <Privacy />
+                </PageTransition>
+              }
+            />
           </Routes>
           </AnimatePresence>
         </main>
@@ -108,7 +125,11 @@ const App = () => {
         <WhatsAppButton />
         <ScrollToTop />
         <Chatbot />
-      </>
+        {/* Dream Country quiz — floating launcher sits above the chatbot robot */}
+        <DreamQuizLauncher />
+        {/* Quiz modal is rendered once for the whole app */}
+        <DreamCountryQuiz />
+      </DreamQuizProvider>
   );
 };
 

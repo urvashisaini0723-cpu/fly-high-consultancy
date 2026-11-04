@@ -42,3 +42,7 @@ coverage/
 .dev-server.pid
 .vercel
 .env*
+
+# ---------- Enquiry records (PII - never commit) ----------
+server/data/
+enquiries.jsonl

@@ -47,6 +47,7 @@ const Footer = () => {
               ["/courses", "Courses"],
               ["/gallery", "Gallery"],
               ["/contact", "Contact"],
+              ["/privacy", "Privacy Policy"],
             ].map(([to, l]) => (
               <li key={to}>
                 <Link

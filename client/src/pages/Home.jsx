@@ -5,6 +5,7 @@ import ServiceCard from "../components/ServiceCard";
 import StatsCounter from "../components/StatsCounter";
 import CountryCard from "../components/CountryCard";
 import ContactForm from "../components/ContactForm";
+import DreamCountrySection from "../components/dream/DreamCountrySection";
 import SEO, { breadcrumbSchema, webPageSchema } from "../components/SEO";
 import { services, stats } from "../data/services";
 import { countries } from "../data/countries";
@@ -164,8 +165,11 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Find Your Dream Country — interactive quiz */}
+      <DreamCountrySection />
+
       {/* Popular Countries marquee */}
-      <section className="py-24 bg-white overflow-hidden">
+      <section id="popular-countries" className="py-24 bg-white overflow-hidden scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <SectionHeading
             eyebrow="Destinations"

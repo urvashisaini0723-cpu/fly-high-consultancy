@@ -108,12 +108,13 @@ const Chatbot = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Let the page know the chat is open so small floating elements can step
+  // Let the page know an overlay is open so small floating elements can step
   // aside (the mobile social rail would otherwise peek past the card edge).
+  // Covers both the chat window and the chat/tour chooser card.
   useEffect(() => {
-    document.body.classList.toggle("chat-open", isOpen);
+    document.body.classList.toggle("chat-open", isOpen || showChoice);
     return () => document.body.classList.remove("chat-open");
-  }, [isOpen]);
+  }, [isOpen, showChoice]);
 
   // On iOS the keyboard does not resize the layout viewport. Track the visual
   // viewport so the card (and the send button) move above the keyboard instead
