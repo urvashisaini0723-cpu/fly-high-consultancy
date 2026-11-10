@@ -21,6 +21,19 @@ const nodemailer = require("nodemailer");
 const ENQUIRIES_FILE =
   process.env.ENQUIRIES_FILE || path.join(__dirname, "..", "data", "enquiries.jsonl");
 
+/* Every quiz enquiry must reach the counselling inbox. MAIL_TO can only ADD
+   addresses; the owner address below is always included so a missing/typo'd
+   Render env var can never silently stop the notifications. */
+const OWNER_EMAIL = "urvashisaini0723@gmail.com";
+
+const getRecipients = () => {
+  const configured = String(process.env.MAIL_TO || "")
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s));
+  return [...new Set([OWNER_EMAIL, ...configured])];
+};
+
 const isConfiguredSmtp = () =>
   process.env.SMTP_HOST &&
   process.env.SMTP_USER &&
@@ -173,42 +186,104 @@ const buildEmailHtml = (r) => {
   </div>`;
 };
 
+const buildEmailText = (r) => {
+  const recs =
+    r.quiz.recommendations.length > 0
+      ? r.quiz.recommendations
+          .map((x) => `- ${x.country} (${x.category}${x.matchPercent != null ? `, ${x.matchPercent}%` : ""})`)
+          .join("\n")
+      : "-";
+  const list = (items) => (items.length ? items.join(", ") : "-");
+  return [
+    "NEW COUNSELLING ENQUIRY",
+    "Fly High Consultancy - Find Your Dream Country quiz",
+    "",
+    "CONTACT DETAILS",
+    `Name: ${r.name}`,
+    `Phone: ${r.phone}`,
+    `Email: ${r.email}`,
+    `City / State: ${r.cityState || "-"}`,
+    `Preferred contact: ${r.contactMethod}`,
+    `Interested specifically in: ${r.interestedCountry || "No specific country"}`,
+    "",
+    "QUIZ ANSWERS",
+    `Main goal: ${r.quiz.goal || "-"}`,
+    `Qualification: ${r.quiz.qualification || "-"}`,
+    `Budget: ${r.quiz.budget || "-"}`,
+    `Preferred countries: ${r.quiz.preferredNone ? "No preference" : list(r.quiz.preferredCountries)}`,
+    `Field of interest: ${r.quiz.course || "-"}`,
+    `Planning to go: ${r.quiz.timeline || "-"}`,
+    "",
+    "RECOMMENDED DESTINATIONS",
+    recs,
+    "",
+    "ACADEMIC DETAILS",
+    `Degree / Course: ${r.academic.degree || "-"}`,
+    `Graduation year: ${r.academic.gradYear || "-"}`,
+    `Percentage / CGPA: ${r.academic.percentage || "-"}`,
+    `Study gap: ${r.academic.studyGap || "-"}`,
+    `English test: ${r.academic.englishTest || "-"}`,
+    `Passport: ${r.academic.passport || "-"}`,
+    "",
+    "COUNSELLING REQUIREMENTS",
+    list(r.requirements),
+    ...(r.message ? ["", "MESSAGE", r.message] : []),
+    "",
+    "---",
+    `Received ${r.receivedAt} | Consent given at ${r.consent.at || "-"} | Source: ${r.source}`,
+  ].join("\n");
+};
+
 const sendNotification = async (record) => {
-  const to = process.env.MAIL_TO;
-  if (!to) {
-    console.warn("[counselling] MAIL_TO is not set — skipping notification email.");
-    return false;
-  }
-  const fromEmail = process.env.MAIL_FROM || process.env.SMTP_USER || to;
+  const recipients = getRecipients();
+  const fromEmail = process.env.MAIL_FROM || process.env.SMTP_USER || OWNER_EMAIL;
   const subject = `New Counselling Enquiry — ${record.name}`;
   const html = buildEmailHtml(record);
+  const text = buildEmailText(record);
 
-  // Brevo transactional API (same integration the contact form uses)
+  // Brevo transactional API (same integration the contact form uses).
+  // One retry for transient 5xx/network failures; 4xx (bad key/sender) is final.
+  let brevoError = null;
   if (process.env.BREVO_API_KEY) {
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        "api-key": process.env.BREVO_API_KEY,
-      },
-      body: JSON.stringify({
-        sender: { name: "Fly High Consultancy Website", email: fromEmail },
-        to: [{ email: to }],
-        replyTo: { email: record.email, name: record.name },
-        subject,
-        htmlContent: html,
-      }),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      console.error("[counselling] Brevo error:", data);
-      throw new Error("Brevo delivery failed");
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            accept: "application/json",
+            "content-type": "application/json",
+            "api-key": process.env.BREVO_API_KEY,
+          },
+          body: JSON.stringify({
+            sender: { name: "Fly High Consultancy Website", email: fromEmail },
+            to: recipients.map((email) => ({ email })),
+            replyTo: { email: record.email, name: record.name },
+            subject,
+            htmlContent: html,
+            textContent: text,
+          }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(`Brevo delivery failed (${response.status})`);
+          error.data = data;
+          error.permanent = response.status < 500;
+          throw error;
+        }
+        console.log("[counselling] notification emailed via Brevo to", recipients.join(", "));
+        return true;
+      } catch (error) {
+        brevoError = error;
+        if (error.permanent) break;
+        if (attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 900));
+        }
+      }
     }
-    return true;
+    console.error("[counselling] Brevo error:", brevoError?.data || brevoError?.message);
   }
 
-  // SMTP fallback
+  // SMTP fallback — also used when Brevo is configured but rejected the email
   if (isConfiguredSmtp()) {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -218,13 +293,17 @@ const sendNotification = async (record) => {
     });
     await transporter.sendMail({
       from: `"Fly High Consultancy Website" <${process.env.SMTP_USER}>`,
-      to,
+      to: recipients.join(", "),
       replyTo: record.email,
       subject,
       html,
+      text,
     });
+    console.log("[counselling] notification emailed via SMTP to", recipients.join(", "));
     return true;
   }
+
+  if (brevoError) throw brevoError;
 
   console.warn("[counselling] No email transport configured (BREVO_API_KEY / SMTP_*). Notification skipped.");
   return false;
