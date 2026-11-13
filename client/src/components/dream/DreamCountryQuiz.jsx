@@ -16,6 +16,7 @@ import {
   FiHome,
   FiMap,
   FiArrowRight,
+  FiMail,
 } from "react-icons/fi";
 import { useDreamQuiz } from "../../context/DreamQuizContext";
 import { QUIZ_QUESTIONS, COUNTRIES, COUNTRY_MAP, EMPTY_ANSWERS, labelFor } from "../../data/dreamCountries";
@@ -46,6 +47,7 @@ const DreamCountryQuiz = () => {
   const [copyState, setCopyState] = useState("idle"); // idle | copied
   const [interestedCountry, setInterestedCountry] = useState(null);
   const [submissionSummary, setSubmissionSummary] = useState(null);
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(true);
 
   const contentRef = useRef(null);
   const dialogRef = useRef(null);
@@ -173,6 +175,7 @@ const DreamCountryQuiz = () => {
     setRecommendation(null);
     setInterestedCountry(null);
     setSubmissionSummary(null);
+    setConfirmationEmailSent(true);
     setQIndex(0);
     setDirection(-1);
     setView("quiz");
@@ -230,8 +233,9 @@ const DreamCountryQuiz = () => {
     setView("form");
   };
 
-  const onEnquirySuccess = (_data, payload) => {
+  const onEnquirySuccess = (data, payload) => {
     setSubmissionSummary(payload);
+    setConfirmationEmailSent(data?.studentNotified !== false);
     setView("done");
   };
 
@@ -663,6 +667,21 @@ const DreamCountryQuiz = () => {
                     <p className="mt-2 max-w-md text-[13px] leading-relaxed text-white/70">
                       Your study abroad counselling request has been received successfully. Our team will review your
                       details and contact you soon.
+                    </p>
+
+                    {/* Confirmation-email state (EMAIL 2). Never blocks the thank-you screen. */}
+                    <p
+                      className={`mt-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium ${
+                        confirmationEmailSent
+                          ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+                          : "border-amber-400/30 bg-amber-500/10 text-amber-200"
+                      }`}
+                      role="status"
+                    >
+                      <FiMail size={12} aria-hidden="true" />
+                      {confirmationEmailSent
+                        ? `A confirmation email is on its way to ${submissionSummary.email}`
+                        : `We couldn't email a confirmation to ${submissionSummary.email} just now — our team will still reach you on ${submissionSummary.contactMethod}.`}
                     </p>
 
                     {/* Summary of the enquiry */}

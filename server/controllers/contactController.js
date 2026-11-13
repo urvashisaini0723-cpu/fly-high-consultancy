@@ -1,30 +1,8 @@
 require("dotenv").config();
-const nodemailer = require("nodemailer");
-
-const isConfiguredSmtp = () => {
-  return (
-    process.env.SMTP_HOST &&
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASS &&
-    !String(process.env.SMTP_USER).includes("your_email") &&
-    !String(process.env.SMTP_PASS).includes("your_app_password")
-  );
-};
-
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-};
+const { sendEmail } = require("../lib/mailer");
 
 const escapeHtml = (s = "") =>
-  String(s)
+  String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
@@ -34,8 +12,6 @@ exports.sendContactMail = async (req, res) => {
     const { name, phone, email, interest, message } = req.body;
 
     const to = process.env.MAIL_TO || "info@flyhighpehowa.in";
-    const fromEmail =
-      process.env.MAIL_FROM || process.env.SMTP_USER || "info@flyhighpehowa.in";
     const subject = `New Enquiry: ${interest} - ${name}`;
     const html = `
       <div style="font-family: Arial, sans-serif; padding: 20px; color: #0B1F3A;">
@@ -50,62 +26,39 @@ exports.sendContactMail = async (req, res) => {
         <p style="margin-top:20px; font-size:12px; color:#666;">Sent from Fly High Consultancy website contact form.</p>
       </div>
     `;
+    const text = [
+      "New Website Enquiry",
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      `Email: ${email}`,
+      `Interest: ${interest}`,
+      `Message: ${message || "-"}`,
+      "",
+      "Sent from Fly High Consultancy website contact form.",
+    ].join("\n");
 
-    // Brevo (Sendinblue) API
-    if (process.env.BREVO_API_KEY) {
-      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-          "api-key": process.env.BREVO_API_KEY,
-        },
-        body: JSON.stringify({
-          sender: { name: "Fly High Consultancy Website", email: fromEmail },
-          to: [{ email: to }],
-          replyTo: { email },
-          subject,
-          htmlContent: html,
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        console.error("Brevo API error:", data);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to send your enquiry. Please try again or contact us directly.",
-        });
-      }
-      console.log("Brevo email sent:", data);
-      return res.status(200).json({
-        success: true,
-        message: "Thank you! Your enquiry has been sent successfully. We will contact you shortly.",
+    // Shared Brevo + SMTP transport (server/lib/mailer.js). No email config here.
+    const { delivered, transport, error } = await sendEmail({
+      to,
+      subject,
+      html,
+      text,
+      replyTo: { email, name },
+    });
+
+    if (!delivered) {
+      console.error("[contact] email not delivered:", error?.message || "unknown error");
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send your enquiry. Please try again or contact us directly.",
       });
     }
 
-    // SMTP fallback
-    if (isConfiguredSmtp()) {
-      const transporter = createTransporter();
-      const mailOptions = {
-        from: `"Fly High Consultancy Website" <${process.env.SMTP_USER}>`,
-        to,
-        replyTo: email,
-        subject,
-        html,
-      };
-      await transporter.sendMail(mailOptions);
-      return res.status(200).json({
-        success: true,
-        message: "Thank you! Your enquiry has been sent successfully. We will contact you shortly.",
-      });
-    }
-
-    // Dev mode
-    console.log("Email not configured. Received contact submission:", req.body);
+    console.log(`[contact] enquiry emailed via ${transport}`);
     return res.status(200).json({
       success: true,
-      message:
-        "Your enquiry has been received. We will contact you shortly. (Email not configured - dev mode)",
+      message: "Thank you! Your enquiry has been sent successfully. We will contact you shortly.",
     });
   } catch (error) {
     console.error("Email send error:", error);

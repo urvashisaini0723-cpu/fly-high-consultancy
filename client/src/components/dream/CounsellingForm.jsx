@@ -109,6 +109,8 @@ const CounsellingForm = ({ answers, recommendation, focusCountry, onSuccess, onB
     return Object.keys(next).length === 0;
   };
 
+  // Built ONCE per submit attempt so the payload that is sent and the summary
+  // that is shown afterwards are identical (submittedAt used to differ).
   const buildPayload = () => ({
     name: form.name.trim(),
     phone: `${form.countryCode} ${form.phone.trim()}`,
@@ -159,11 +161,14 @@ const CounsellingForm = ({ answers, recommendation, focusCountry, onSuccess, onB
     setStatus("submitting");
     setServerError("");
 
+    // Snapshot the answers once: the request and the on-screen summary must match.
+    const payload = buildPayload();
+
     try {
       const res = await fetch(apiUrl("/api/counselling"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload()),
+        body: JSON.stringify(payload),
       });
       let data = null;
       try {
@@ -172,7 +177,7 @@ const CounsellingForm = ({ answers, recommendation, focusCountry, onSuccess, onB
         data = null;
       }
       if (res.ok && data?.success) {
-        onSuccess(data, buildPayload());
+        onSuccess(data, payload);
         return;
       }
       setStatus("error");
